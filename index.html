@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Reports for Magento 2</title>
+  <meta name="description" content="Ask your Magento 2 or Adobe Commerce database questions in plain English, from the admin. Read-only, audited, and grounded in a snapshot of your own store.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EAI%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="#how">How it works</a>
+      <a href="#security">Security</a>
+      <a href="#pricing">Pricing</a>
+      <a href="docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">For Magento 2 and Adobe Commerce</span>
+        <h1>Ask your store's database in plain English.</h1>
+        <p class="lead">Your team asks "why isn't this product showing?" or "how many orders did Canada get last month?" and gets the answer in seconds, from the admin. No developer ticket. Read-only by design.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#pricing">See pricing</a>
+          <a class="btn btn-ghost" href="docs.html">Read the docs</a>
+        </div>
+        <p class="hero-note">Uses your own Anthropic, OpenAI or Gemini key. About $0.11 per question.</p>
+      </div>
+      <div class="demo" aria-label="Example question and answer">
+        <div class="demo-q">Why is SKU 24-MB01 not showing in the Outdoor store view?</div>
+        <div class="demo-a">
+          <h4>It's disabled in that store view only.</h4>
+          <ul>
+            <li>Enabled by default, but a store-view override sets <b>status = Disabled</b> for Outdoor (store 3).</li>
+            <li>It is assigned to the right website and is in stock, so the override is the only blocker.</li>
+            <li><b>Fix:</b> remove the store-view status override, or set it to Enabled.</li>
+          </ul>
+          <div class="demo-meta">
+            <span class="tag tag-ok">Double-checked</span>
+            <span class="tag">2 read-only queries</span>
+            <span class="tag">$0.09</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>It knows your store, not just Magento.</h2>
+      <p class="section-lead">Generic AI-to-SQL tools break on real installations: custom attributes, third-party tables, columns added to core tables, brands as store views, rules that live in code. AI Reports builds a snapshot of your own installation and keeps it fresh.</p>
+      <div class="grid grid-3">
+        <div class="card"><div class="icon">◎</div><h3>Store snapshot</h3><p>Websites, store views, every attribute with its options, every table and column, and which module owns it. Rebuilt weekly and after changes.</p></div>
+        <div class="card"><div class="icon">✎</div><h3>Your business rules</h3><p>Write down what the database can't tell, like "visibility depends on customer group". The AI treats your rules as authoritative.</p></div>
+        <div class="card"><div class="icon">⌕</div><h3>Checks before it guesses</h3><p>Before writing a query, it can look up the real store view, SKU, category or column values, so filters match what exists.</p></div>
+        <div class="card"><div class="icon">≡</div><h3>Two modes</h3><p><b>Answer</b> explains what it found, with evidence. <b>Table + CSV</b> runs one query and gives you the rows to download.</p></div>
+        <div class="card"><div class="icon">↺</div><h3>Learns with approval</h3><p>A 👍 turns an answer into an example. The same question asked again re-runs the approved query with no AI cost.</p></div>
+        <div class="card"><div class="icon">$</div><h3>Costs under control</h3><p>Quick, Standard or Thorough per question. Prompt caching, a monthly budget, a daily limit per person, and saved reports that cost nothing to re-run.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="results">
+    <div class="wrap">
+      <h2>Measured on a real store.</h2>
+      <p class="section-lead">An Adobe Commerce 2.4.8 installation with more than 700 modules, content staging, multi-source inventory, B2B and over 30 store views. Nine real questions with known answers, covering product visibility, stock, orders and store setup.</p>
+      <div class="stats">
+        <div class="stat"><b>9 of 9</b><span>answered correctly</span></div>
+        <div class="stat"><b>$0.11</b><span>average cost per question</span></div>
+        <div class="stat"><b>6–39 s</b><span>time per answer</span></div>
+        <div class="stat"><b>0</b><span>writes to the database</span></div>
+      </div>
+      <p class="fine">Standard preset, Claude Opus 5.5, November 2026. Your results depend on your store and your questions. The module includes the same test runner, so you can measure on your own data.</p>
+    </div>
+  </section>
+
+  <section id="security">
+    <div class="wrap grid grid-2" style="gap:40px; align-items:start">
+      <div>
+        <h2>Read-only, at every layer.</h2>
+        <p class="section-lead">It runs AI-written SQL against production, so safety does not rest on any single check.</p>
+        <p class="fine">Anyone with access reads every non-blocked table across all websites, so grant it only to roles that may see that data.</p>
+      </div>
+      <ul class="checks">
+        <li><b>A separate read-only MySQL user</b>, set only in env.php, plus a forced read-only session.</li>
+        <li><b>One SELECT per query.</b> Comments, multiple statements, variables, system schemas and file functions are rejected.</li>
+        <li><b>Credential tables are never readable</b>, such as admin users, tokens, API keys, payment tokens and config. The AI is never told they exist.</li>
+        <li><b>Row limits and a statement timeout</b> on every query.</li>
+        <li><b>Personal data is masked</b> in anything sent back to the AI. Table + CSV mode sends no rows at all.</li>
+        <li><b>Full audit log</b> of every question, query, user, token count and cost.</li>
+        <li><b>Your AI key, your data.</b> Questions go straight from your server to your AI provider. We never see them.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <h2>Simple yearly pricing, per store.</h2>
+      <p class="section-lead">Staging, test and local copies are included. If you stop renewing, you keep every version you received, forever.</p>
+      <div class="plans">
+        <div class="plan">
+          <div class="plan-name">Open Source</div>
+          <div class="plan-for">Magento Open Source, one store</div>
+          <div class="price">$399 <small>/ year</small></div>
+          <ul>
+            <li>One production installation</li>
+            <li>All features and updates</li>
+            <li>Business rule packs</li>
+            <li>E-mail support</li>
+          </ul>
+          <a class="btn btn-ghost" data-checkout="opensource" href="#">Buy</a>
+        </div>
+        <div class="plan featured">
+          <div class="plan-name">Adobe Commerce</div>
+          <div class="plan-for">Adobe Commerce or Open Source, one store</div>
+          <div class="price">$899 <small>/ year</small></div>
+          <ul>
+            <li>Content staging and B2B support</li>
+            <li>One production installation</li>
+            <li>All features, updates and rule packs</li>
+            <li>Priority e-mail support</li>
+          </ul>
+          <a class="btn btn-primary" data-checkout="commerce" href="#">Buy</a>
+        </div>
+        <div class="plan">
+          <div class="plan-name">Agency</div>
+          <div class="plan-for">For agencies managing client stores</div>
+          <div class="price">$2,499 <small>/ year</small></div>
+          <ul>
+            <li>Up to 10 production installations</li>
+            <li>Any edition</li>
+            <li>All features, updates and rule packs</li>
+            <li>Priority e-mail support</li>
+          </ul>
+          <a class="btn btn-ghost" data-checkout="agency" href="#">Buy</a>
+        </div>
+      </div>
+      <p class="fine">Prices in USD, before tax. Checkout is handled by Lemon Squeezy, which also handles VAT and sales tax. AI usage is billed by your AI provider, not by us.</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap" style="max-width:820px">
+      <h2>Questions</h2>
+      <details><summary>Does my store data go to you?</summary><p>No. Questions, queries and results go from your server to the AI provider you choose, under your own account. The only call to us is a daily licence check that sends the licence key, your domain and the module and Magento versions.</p></details>
+      <details><summary>What does the AI usage cost?</summary><p>On our test store a question averaged $0.11 with Claude Opus 5.5, from $0.04 for simple counts to $0.37 for a full "why isn't this showing" diagnosis. The Quick preset costs about half. Saved reports and re-used approved answers cost nothing.</p></details>
+      <details><summary>Which AI providers work?</summary><p>Anthropic (recommended), OpenAI, Google Gemini, or any OpenAI-compatible endpoint. You pick a model for each quality preset.</p></details>
+      <details><summary>Can it change or delete data?</summary><p>No. It connects as a separate MySQL user that only has SELECT, forces a read-only session, and rejects anything that isn't a single SELECT before it reaches the database.</p></details>
+      <details><summary>What happens if I don't renew?</summary><p>Everything keeps working. You keep every version released while your plan was active, and Composer can still install them. You stop getting new versions, rule packs and support until you renew.</p></details>
+      <details><summary>Do staging servers need their own licence?</summary><p>No. Local, test and staging domains, including Adobe Commerce Cloud integration and staging environments, never count towards your limit.</p></details>
+      <details><summary>What are the requirements?</summary><p>Magento Open Source or Adobe Commerce 2.4 on PHP 8.2 or 8.3, MySQL or MariaDB, and an API key from an AI provider. Tested on Adobe Commerce 2.4.8 with MariaDB 10.6.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="docs.html">Docs</a>
+      <a href="licence.html">Licence</a>
+      <a href="privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

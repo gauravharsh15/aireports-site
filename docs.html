@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Reports Docs</title>
+  <meta name="description" content="Install and set up AI Reports for Magento 2 and Adobe Commerce.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="./#how">How it works</a>
+      <a href="./#security">Security</a>
+      <a href="./#pricing">Pricing</a>
+      <a href="docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="./#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose">
+    <h1>Install and set up</h1>
+    <p>About 15 minutes. You need SSH access to the server, a database administrator who can create a MySQL user, and an API key from an AI provider.</p>
+
+    <h2>1. Install with Composer</h2>
+    <p>Use the licence key from your purchase e-mail as the password:</p>
+<pre><code>composer config repositories.aireports composer https://wuetygwpupwjhospscwi.supabase.co/functions/v1/composer
+composer config http-basic.wuetygwpupwjhospscwi.supabase.co licence YOUR-LICENCE-KEY
+composer require gauravharsh/module-ai-reports:^3.0
+
+bin/magento module:enable Gaurav_AiReports
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush</code></pre>
+    <p class="callout">Keep <code>auth.json</code> out of version control. On deployment pipelines, set the key as the <code>COMPOSER_AUTH</code> environment variable instead.</p>
+
+    <h2>2. Create the read-only database user</h2>
+<pre><code>CREATE USER 'aireports_ro'@'%' IDENTIFIED BY 'a-strong-random-password';
+GRANT SELECT ON your_database_name.* TO 'aireports_ro'@'%';
+FLUSH PRIVILEGES;</code></pre>
+    <p>Restrict <code>'%'</code> to your application servers where you can.</p>
+
+    <h2>3. Add it to app/etc/env.php</h2>
+<pre><code>'aireports' => [
+    'readonly_connection' => [
+        'username' => 'aireports_ro',
+        'password' => 'a-strong-random-password',
+    ],
+],</code></pre>
+    <p>The tool refuses to run until this is set. The credential can't be seen or changed in the admin.</p>
+
+    <h2>4. Configure</h2>
+    <p>Go to <b>Stores › Configuration › Gaurav Extensions › AI Reports</b>:</p>
+    <ul>
+      <li><b>Licence:</b> paste your licence key.</li>
+      <li><b>AI Connection:</b> provider, API key and endpoint. For Anthropic use <code>https://api.anthropic.com/v1/messages</code>.</li>
+      <li><b>Answer Quality:</b> the model for each preset. The defaults are Claude Sonnet 5.5 for Quick and Claude Opus 5.5 for Standard and Thorough.</li>
+      <li><b>Usage &amp; Budget:</b> set a monthly budget and a daily limit per person.</li>
+      <li><b>Security Guardrails:</b> review them, then set <b>Enable Query Tool</b> to Yes.</li>
+    </ul>
+
+    <h2>5. Build the store snapshot</h2>
+<pre><code>bin/magento aireports:knowledge:build</code></pre>
+    <p>This takes seconds to a few minutes. A weekly cron job keeps it fresh, and a daily check rebuilds it early when attributes, stores or the schema change.</p>
+
+    <h2>6. Give people access</h2>
+    <table>
+      <tr><th>Permission</th><th>Allows</th></tr>
+      <tr><td>AI Reports query</td><td>Asking questions and running saved reports</td></tr>
+      <tr><td>AI Reports knowledge</td><td>Rebuilding the snapshot and editing business rules</td></tr>
+      <tr><td>AI Reports query log</td><td>The audit log and usage figures</td></tr>
+      <tr><td>AI Reports configuration</td><td>The settings above</td></tr>
+    </table>
+    <p class="callout">Anyone with query access can read every non-blocked table across all websites. Grant it only to roles that may see that data.</p>
+
+    <h2>Business rules</h2>
+    <p>Under <b>Reports › AI Knowledge</b>, write down anything the database can't reveal, like a new analyst briefing. Name tables, attribute codes and ids where you know them. For example:</p>
+    <p class="callout"><b>Product visibility depends on customer group.</b> Listings and search only show products whose attribute <code>customer_groups</code> contains the shopper's group id. Guests are group 0. "Not showing for trade customers" usually means the trade group id is missing.</p>
+    <p>Copy rules between environments with:</p>
+<pre><code>bin/magento aireports:knowledge:rules export rules.json
+bin/magento aireports:knowledge:rules import rules.json</code></pre>
+
+    <h2>Measure accuracy on your store</h2>
+    <p>Write questions with known answers into a JSON file and score the AI against them. It shows the estimated cost and asks before it runs.</p>
+<pre><code>bin/magento aireports:eval:run --file=questions.json --preset=standard</code></pre>
+
+    <h2>Licence</h2>
+    <ul>
+      <li>The key is checked once a day and when the settings page is saved. Check it now with <code>bin/magento aireports:licence:check</code>.</li>
+      <li>The tool keeps working if the check fails, the server can't be reached, or the licence has expired.</li>
+      <li>Local, test and staging domains never count towards your limit.</li>
+      <li>To move a licence to another domain, contact support.</li>
+    </ul>
+
+    <h2>Updating</h2>
+<pre><code>composer update gauravharsh/module-ai-reports
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush</code></pre>
+    <p>Coming from 2.x: add the repository and key from step 1, then raise your constraint from <code>^2.0</code> to <code>^3.0</code>.</p>
+
+    <h2>What leaves your server</h2>
+    <table>
+      <tr><th>Sent</th><th>To</th></tr>
+      <tr><td>Store structure: attributes and options, store and category names, order statuses, table and column names, your business rules</td><td>Your AI provider</td></tr>
+      <tr><td>The question as typed</td><td>Your AI provider</td></tr>
+      <tr><td>Answer mode only: up to 20 rows per query, with personal data masked</td><td>Your AI provider</td></tr>
+      <tr><td>Licence key, store domain, module and Magento versions</td><td>Us, once a day</td></tr>
+    </table>
+    <p>Never sent: blocked tables, credentials or full result sets. Table + CSV mode sends no rows.</p>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="docs.html">Docs</a>
+      <a href="licence.html">Licence</a>
+      <a href="privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

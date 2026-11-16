@@ -1,9 +1,9 @@
 // Checkout links (Polar) and the public support address; empty values hide the button or link.
 const SITE = {
   checkout: {
-    opensource: "",
-    commerce: "",
-    agency: "",
+    opensource: "https://buy.polar.sh/polar_cl_fAu6FjwBrKgDKofeiYST9FgZBWVVcHNnGiNK30Fj1Ey",
+    commerce: "https://buy.polar.sh/polar_cl_sOH7dJsUjB96p6Kwa4ffeCfjXI7Y2Jzy2dLTY2cTKK3",
+    agency: "https://buy.polar.sh/polar_cl_AoxDXaMSFRh8NBrCqycuHtQYougrxFphgaHL44ExxED",
   },
   contactEmail: "gaurav.extensions.support@gmail.com",
 };

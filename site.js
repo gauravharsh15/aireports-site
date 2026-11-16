@@ -5,7 +5,7 @@ const SITE = {
     commerce: "https://buy.polar.sh/polar_cl_sOH7dJsUjB96p6Kwa4ffeCfjXI7Y2Jzy2dLTY2cTKK3",
     agency: "https://buy.polar.sh/polar_cl_AoxDXaMSFRh8NBrCqycuHtQYougrxFphgaHL44ExxED",
   },
-  contactEmail: "gaurav.extensions.support@gmail.com",
+  contactEmail: "gaurav@gauravextensions.com",
 };
 
 // Launch offer: 50% off the first year until 31 Dec 2026, 11:59 PM India time.
@@ -39,7 +39,8 @@ document.querySelectorAll("[data-contact]").forEach((el) => {
     const parts = [];
     if (el.dataset.subject) parts.push("subject=" + encodeURIComponent(el.dataset.subject));
     if (el.dataset.body) parts.push("body=" + el.dataset.body.split("%0A").map(encodeURIComponent).join("%0A"));
-    el.href = "mailto:" + SITE.contactEmail + (parts.length ? "?" + parts.join("&") : "");
+    // data-to sends to another address on the domain (the founder's own inbox).
+    el.href = "mailto:" + (el.dataset.to || SITE.contactEmail) + (parts.length ? "?" + parts.join("&") : "");
     if (!el.textContent.trim()) el.textContent = SITE.contactEmail;
   } else {
     el.remove();

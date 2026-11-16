@@ -7,7 +7,7 @@
   <meta name="description" content="Install and set up AI Reports for Magento 2 and Adobe Commerce.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,10 +27,14 @@
 <main class="wrap">
   <article class="prose">
     <h1>Install and set up</h1>
+    <div class="thanks" data-thanks hidden>
+      <p><strong>Thanks for your purchase!</strong> Your licence key is in your Polar account. You'll need it in step 1.</p>
+      <a class="btn btn-primary" data-portal href="https://polar.sh/gaurav-extensions/portal">Get my licence key</a>
+    </div>
     <p>About 15 minutes. You need SSH access to the server, a database administrator who can create a MySQL user, and an API key from an AI provider.</p>
 
     <h2>1. Install with Composer</h2>
-    <p>Use the licence key from your purchase e-mail as the password:</p>
+    <p>Use your licence key as the password. It's in your Polar account: follow the link in your purchase e-mail, or open <a data-portal href="https://polar.sh/gaurav-extensions/portal">polar.sh/gaurav-extensions/portal</a> and sign in with the e-mail you bought with.</p>
 <pre><code>composer config repositories.aireports composer https://wuetygwpupwjhospscwi.supabase.co/functions/v1/composer
 composer config http-basic.wuetygwpupwjhospscwi.supabase.co licence YOUR-LICENCE-KEY
 composer require gauravharsh/module-ai-reports:^3.0

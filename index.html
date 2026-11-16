@@ -5,17 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Reports for Magento 2</title>
   <meta name="description" content="Ask your Magento 2 or Adobe Commerce database questions in plain English, from the admin. Read-only, audited, and grounded in a snapshot of your own store.">
+  <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EAI%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f46e5'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='21.5' font-size='14' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EAI%3C/text%3E%3C/svg%3E">
 </head>
 <body>
+<div class="promo" data-offer hidden><div class="wrap"><span class="promo-tag">Launch offer</span> <b>50% off your first year</b> on every plan, until 31 December. <a href="#pricing">See prices <span aria-hidden="true">→</span></a></div></div>
 <header class="site-head">
   <div class="wrap">
     <a class="brand" href="./"><span class="brand-mark">AI</span>AI Reports</a>
     <nav class="nav">
+      <a href="#tour">Product</a>
       <a href="#how">How it works</a>
       <a href="#security">Security</a>
       <a href="#pricing">Pricing</a>
@@ -26,59 +29,367 @@
 </header>
 
 <main>
-  <div class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <span class="eyebrow">For Magento 2 and Adobe Commerce</span>
-        <h1>Ask your store's database in plain English.</h1>
-        <p class="lead">Your team asks "why isn't this product showing?" or "how many orders did Canada get last month?" and gets the answer in seconds, from the admin. No developer ticket. Read-only by design.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="#pricing">See pricing</a>
-          <a class="btn btn-ghost" href="docs.html">Read the docs</a>
-        </div>
-        <p class="hero-note">Uses your own Anthropic, OpenAI or Gemini key. About $0.11 per question.</p>
-      </div>
-      <div class="demo" aria-label="Example question and answer">
-        <div class="demo-q">Why is SKU 24-MB01 not showing in the Outdoor store view?</div>
-        <div class="demo-a">
-          <h4>It's disabled in that store view only.</h4>
-          <ul>
-            <li>Enabled by default, but a store-view override sets <b>status = Disabled</b> for Outdoor (store 3).</li>
-            <li>It is assigned to the right website and is in stock, so the override is the only blocker.</li>
-            <li><b>Fix:</b> remove the store-view status override, or set it to Enabled.</li>
-          </ul>
-          <div class="demo-meta">
-            <span class="tag tag-ok">Double-checked</span>
-            <span class="tag">2 read-only queries</span>
-            <span class="tag">$0.09</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <section id="how">
+  <!-- ======================= HERO ======================= -->
+  <section class="hero">
+    <span class="blob blob-1" aria-hidden="true"></span>
+    <span class="blob blob-2" aria-hidden="true"></span>
+    <span class="blob blob-3" aria-hidden="true"></span>
     <div class="wrap">
-      <h2>It knows your store, not just Magento.</h2>
-      <p class="section-lead">Generic AI-to-SQL tools break on real installations: custom attributes, third-party tables, columns added to core tables, brands as store views, rules that live in code. AI Reports builds a snapshot of your own installation and keeps it fresh.</p>
-      <div class="grid grid-3">
-        <div class="card"><div class="icon">◎</div><h3>Store snapshot</h3><p>Websites, store views, every attribute with its options, every table and column, and which module owns it. Rebuilt weekly and after changes.</p></div>
-        <div class="card"><div class="icon">✎</div><h3>Your business rules</h3><p>Write down what the database can't tell, like "visibility depends on customer group". The AI treats your rules as authoritative.</p></div>
-        <div class="card"><div class="icon">⌕</div><h3>Checks before it guesses</h3><p>Before writing a query, it can look up the real store view, SKU, category or column values, so filters match what exists.</p></div>
-        <div class="card"><div class="icon">≡</div><h3>Two modes</h3><p><b>Answer</b> explains what it found, with evidence. <b>Table + CSV</b> runs one query and gives you the rows to download.</p></div>
-        <div class="card"><div class="icon">↺</div><h3>Learns with approval</h3><p>A 👍 turns an answer into an example. The same question asked again re-runs the approved query with no AI cost.</p></div>
-        <div class="card"><div class="icon">$</div><h3>Costs under control</h3><p>Quick, Standard or Thorough per question. Prompt caching, a monthly budget, a daily limit per person, and saved reports that cost nothing to re-run.</p></div>
+      <span class="pill-note rise" style="--d:.05s"><b>3.0</b>For Magento 2.4 and Adobe Commerce</span>
+      <h1 class="rise" style="--d:.12s">Ask your store's database<br> <span>in plain English.</span></h1>
+      <p class="lead rise" style="--d:.22s">Your team types a question in the Magento admin, like "why isn't this product showing?" or "orders by country last month", and gets a checked answer or a downloadable table in seconds. No developer ticket.</p>
+      <div class="cta-row rise" style="--d:.3s">
+        <a class="btn btn-primary" href="#pricing">Get a licence <span class="arr" aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="#tour">See what it does</a>
+      </div>
+      <ul class="trust rise" style="--d:.38s">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Read-only by design</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Your own AI key, about $0.11 a question</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Every query logged</li>
+      </ul>
+
+      <figure class="shot hero-shot reveal">
+        <div class="mk" data-demo role="img" aria-label="Illustration of the Ask the database page in the Magento admin. A question is typed, the tool checks the store, and a written answer or a table appears.">
+          <div class="mk-bar" aria-hidden="true"><i></i><i></i><i></i><span class="mk-url">shop.example.com/admin/aireports/query</span></div>
+          <div class="mk-admin" aria-hidden="true">
+            <div class="mk-side"><span>Dashboard</span><span>Sales</span><span>Catalog</span><span>Customers</span><span class="on">Reports</span><span>Stores</span></div>
+            <div class="mk-page">
+              <div class="m-head">
+                <div class="m-title">Ask the database</div>
+                <div class="m-actions"><span class="m-pill ok">$3.12 of $50 this month</span><span class="m-btn m-btn-sm m-btn-ghost m-hide-sm">Saved reports (4)</span><span class="m-link m-hide-sm">AI Knowledge</span><span class="m-link m-hide-sm">Query log</span></div>
+              </div>
+              <div class="m-card m-ask">
+                <div class="m-q"><span data-demo-q>Why is SKU 24-MB01 not showing in the Outdoor store view?</span><i class="m-caret"></i></div>
+                <div class="m-askbar">
+                  <span class="m-seg"><b class="on" data-demo-mode="answer">Answer</b><b data-demo-mode="table">Table + CSV</b></span>
+                  <span class="m-seg m-seg-sm m-hide-sm"><b data-demo-preset="quick">Quick <em>$</em></b><b data-demo-preset="standard">Standard <em>$$</em></b><b class="on" data-demo-preset="thorough">Thorough <em>$$$</em></b></span>
+                  <span class="grow"></span>
+                  <span class="m-btn m-btn-primary" data-demo-ask>Ask</span>
+                </div>
+              </div>
+              <div class="m-stage">
+                <div class="m-wait" data-demo-wait hidden><span class="m-orbit"><i></i><i></i><i></i></span><span><b data-demo-step>Looking at your store</b><small>Usually a few seconds</small></span></div>
+                <div class="m-out" data-demo-out>
+                  <div class="m-card">
+                    <div class="m-card-title">SKU 24-MB01 in the Outdoor store view <span class="m-badge">Double-checked</span></div>
+                    <div class="m-answer">
+                      <p><b>It's disabled in the Outdoor store view only.</b></p>
+                      <ul>
+                        <li>Enabled by default, but a store-view override sets <b>status = Disabled</b> for Outdoor (store 3).</li>
+                        <li>It's in the right website and in stock, so the override is the only blocker.</li>
+                        <li><b>Fix:</b> remove the store-view override, or set it to Enabled.</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="m-after"><span>Was this right? <span class="m-btn m-btn-sm">👍 Yes</span><span class="m-btn m-btn-sm">👎 No</span></span><span class="m-meta">2 queries · 9k tokens · $0.24 · <span class="m-link">Details ▸</span></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <template data-ex data-q="Why is SKU 24-MB01 not showing in the Outdoor store view?" data-mode="answer" data-preset="thorough" data-steps="Looking at your store|Finding the data|Checking the results|Writing the answer">
+            <div class="m-card">
+              <div class="m-card-title">SKU 24-MB01 in the Outdoor store view <span class="m-badge">Double-checked</span></div>
+              <div class="m-answer">
+                <p><b>It's disabled in the Outdoor store view only.</b></p>
+                <ul>
+                  <li>Enabled by default, but a store-view override sets <b>status = Disabled</b> for Outdoor (store 3).</li>
+                  <li>It's in the right website and in stock, so the override is the only blocker.</li>
+                  <li><b>Fix:</b> remove the store-view override, or set it to Enabled.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="m-after"><span>Was this right? <span class="m-btn m-btn-sm">👍 Yes</span><span class="m-btn m-btn-sm">👎 No</span></span><span class="m-meta">2 queries · 9k tokens · $0.24 · <span class="m-link">Details ▸</span></span></div>
+          </template>
+          <template data-ex data-q="Orders and revenue by country last month" data-mode="table" data-preset="standard" data-steps="Looking at your store|Finding the data|Building the table">
+            <div class="m-card">
+              <div class="m-card-title"><span>Results <small>· 5 rows</small></span><span class="m-actions"><span class="m-btn m-btn-sm m-btn-ghost">Save as report</span><span class="m-btn m-btn-sm">Download CSV</span></span></div>
+              <div class="m-assumed">Assumed: "last month" = October 2026, grouped by billing country</div>
+              <div class="m-table-wrap"><table class="m-table">
+                <thead><tr><th>Country</th><th class="n">Orders</th><th class="n">Revenue</th><th class="n">Avg. order</th></tr></thead>
+                <tbody>
+                  <tr><td>United States</td><td class="n">1,284</td><td class="n">$162,410</td><td class="n">$126.49</td></tr>
+                  <tr><td>Canada</td><td class="n">412</td><td class="n">$49,870</td><td class="n">$121.04</td></tr>
+                  <tr><td>United Kingdom</td><td class="n">236</td><td class="n">$28,115</td><td class="n">$119.13</td></tr>
+                  <tr><td>Germany</td><td class="n">171</td><td class="n">$21,960</td><td class="n">$128.42</td></tr>
+                  <tr><td>Australia</td><td class="n">98</td><td class="n">$12,904</td><td class="n">$131.67</td></tr>
+                </tbody>
+              </table></div>
+            </div>
+            <div class="m-after"><span>Was this right? <span class="m-btn m-btn-sm">👍 Yes</span><span class="m-btn m-btn-sm">👎 No</span></span><span class="m-meta">1 query · 5 rows · $0.04 · <span class="m-link">Details ▸</span></span></div>
+          </template>
+          <template data-ex data-q="How many customers signed up in October?" data-mode="answer" data-preset="quick" data-steps="Looking at your store|Finding the data|Writing the answer">
+            <div class="m-card">
+              <div class="m-card-title">New customers in October 2026</div>
+              <div class="m-answer">
+                <p><b>1,942 new customer accounts</b> in October 2026, up 12% on September (1,734).</p>
+                <ul>
+                  <li>Counted by account creation date, across all websites.</li>
+                  <li>Guest checkouts aren't included.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="m-after"><span>Was this right? <span class="m-btn m-btn-sm">👍 Yes</span><span class="m-btn m-btn-sm">👎 No</span></span><span class="m-meta">1 query · $0.01 · <span class="m-link">Details ▸</span></span></div>
+          </template>
+        </div>
+        <figcaption>Illustration with sample data. In your store it lives under Reports › AI SQL Reports.</figcaption>
+      </figure>
+
+      <div class="works reveal">
+        <span>Works with</span>
+        <b>Magento Open Source 2.4</b><span class="dot"></span>
+        <b>Adobe Commerce 2.4</b><span class="dot"></span>
+        <b>Anthropic Claude</b><span class="dot"></span>
+        <b>OpenAI</b><span class="dot"></span>
+        <b>Google Gemini</b>
       </div>
     </div>
   </section>
 
-  <section id="results">
+  <!-- ======================= PRODUCT TOUR ======================= -->
+  <section id="tour" class="tight">
     <div class="wrap">
-      <h2>Measured on a real store.</h2>
-      <p class="section-lead">An Adobe Commerce 2.4.8 installation with more than 700 modules, content staging, multi-source inventory, B2B and over 30 store views. Nine real questions with known answers, covering product visibility, stock, orders and store setup.</p>
-      <div class="stats">
-        <div class="stat"><b>9 of 9</b><span>answered correctly</span></div>
-        <div class="stat"><b>$0.11</b><span>average cost per question</span></div>
+      <div class="reveal">
+        <span class="label"><b>01</b> / The product</span>
+        <h2>Questions in. <span>Checked answers out.</span></h2>
+        <p class="section-lead">One box in the admin for anyone you trust with the data: merchandisers, customer service, finance and developers. Pick a written answer or a table, and a quality level per question.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-text reveal">
+          <span class="kicker">Answer mode</span>
+          <h3>Every answer shows its work.</h3>
+          <p>Open Details under any answer to see exactly what happened. Nothing is hidden, so your team can trust the result or spot a wrong assumption.</p>
+          <ul class="ticks">
+            <li><b>How it read your question</b>, in plain words</li>
+            <li><b>What it looked up first</b>: the real store view, SKU or category</li>
+            <li><b>The exact SQL</b> it ran, read-only</li>
+            <li><b>Thorough</b> double-checks tricky answers before you see them</li>
+          </ul>
+        </div>
+        <figure class="shot reveal" style="--d:.1s">
+          <div class="mk" role="img" aria-label="Illustration: an answer with its details open, showing how the question was read, what was looked up first, and the read-only SQL query that ran.">
+            <div class="mk-bar" aria-hidden="true"><i></i><i></i><i></i><span class="mk-url">shop.example.com/admin/aireports/query</span></div>
+            <div class="mk-page" aria-hidden="true">
+              <div class="m-card">
+                <div class="m-card-title">SKU 24-MB01 in the Outdoor store view <span class="m-badge">Double-checked</span></div>
+                <div class="m-answer"><p><b>It's disabled in the Outdoor store view only.</b> Everything else checks out.</p></div>
+              </div>
+              <div class="m-card m-details">
+                <div class="m-dsec"><b>How it read your question</b><ul><li>Product with SKU 24-MB01, in store view "Outdoor"</li><li>"Not showing" = disabled, not in the website, out of stock or not visible</li></ul></div>
+                <div class="m-dsec"><b>What it checked first</b><ul><li>Store view "Outdoor" → store 3</li><li>SKU 24-MB01 → product 1</li></ul></div>
+                <div class="m-dsec"><b>The queries it ran</b>
+<div class="m-pre"><span class="k">SELECT</span> s.store_id, s.value <span class="k">AS</span> status
+<span class="k">FROM</span> catalog_product_entity e
+<span class="k">JOIN</span> catalog_product_entity_int s <span class="k">ON</span> s.entity_id = e.entity_id
+<span class="k">JOIN</span> eav_attribute a <span class="k">ON</span> a.attribute_id = s.attribute_id
+<span class="k">WHERE</span> e.sku = <span class="s">'24-MB01'</span> <span class="k">AND</span> a.attribute_code = <span class="s">'status'</span></div>
+                  <div class="m-meta" style="margin-top:6px">Query 1 of 2 · 2 rows</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption>Illustration with sample data</figcaption>
+        </figure>
+      </div>
+
+      <div class="feature flip">
+        <div class="feature-text reveal">
+          <span class="kicker">Table + CSV</span>
+          <h3>A table when you need the rows.</h3>
+          <p>Choose Table + CSV and it runs one query and gives you the rows, ready to download. No rows are ever sent to the AI in this mode.</p>
+          <ul class="ticks">
+            <li><b>Download CSV</b> for spreadsheets and reports</li>
+            <li><b>Save as report</b> and re-run it on today's data later</li>
+            <li><b>Saved reports cost nothing</b>: no AI call when you re-run</li>
+          </ul>
+        </div>
+        <figure class="shot reveal" style="--d:.1s">
+          <div class="mk" role="img" aria-label="Illustration: a results table of orders and revenue by country with Save as report and Download CSV buttons, and a list of saved reports that re-run with no AI cost.">
+            <div class="mk-bar" aria-hidden="true"><i></i><i></i><i></i><span class="mk-url">shop.example.com/admin/aireports/query</span></div>
+            <div class="mk-page" aria-hidden="true">
+              <div class="m-card">
+                <div class="m-card-title"><span>Results <small>· 5 rows</small></span><span class="m-actions"><span class="m-btn m-btn-sm m-btn-ghost">Save as report</span><span class="m-btn m-btn-sm">Download CSV</span></span></div>
+                <div class="m-table-wrap"><table class="m-table">
+                  <thead><tr><th>Country</th><th class="n">Orders</th><th class="n">Revenue</th><th class="n">Avg. order</th></tr></thead>
+                  <tbody>
+                    <tr><td>United States</td><td class="n">1,284</td><td class="n">$162,410</td><td class="n">$126.49</td></tr>
+                    <tr><td>Canada</td><td class="n">412</td><td class="n">$49,870</td><td class="n">$121.04</td></tr>
+                    <tr><td>United Kingdom</td><td class="n">236</td><td class="n">$28,115</td><td class="n">$119.13</td></tr>
+                    <tr><td>Germany</td><td class="n">171</td><td class="n">$21,960</td><td class="n">$128.42</td></tr>
+                  </tbody>
+                </table></div>
+              </div>
+              <div class="m-card">
+                <div class="m-card-title">Saved reports <small>re-run on today's data - no AI cost</small></div>
+                <div class="m-report"><div class="grow"><b>Orders and revenue by country</b><span class="m-meta">by priya · run 14 times</span></div><span class="m-btn m-btn-sm">Run</span></div>
+                <div class="m-report"><div class="grow"><b>Enabled products with no image</b><span class="m-meta">by sam · run 6 times</span></div><span class="m-btn m-btn-sm">Run</span></div>
+                <div class="m-report"><div class="grow"><b>Orders pending payment for over 2 days</b><span class="m-meta">by alex · run 22 times</span></div><span class="m-btn m-btn-sm">Run</span></div>
+              </div>
+            </div>
+          </div>
+          <figcaption>Illustration with sample data</figcaption>
+        </figure>
+      </div>
+
+      <div class="feature">
+        <div class="feature-text reveal">
+          <span class="kicker">AI Knowledge</span>
+          <h3>It learns how your store works.</h3>
+          <p>A snapshot of your installation is built automatically: every table, attribute, store view and the module that owns it. Then you add what the database can't tell.</p>
+          <ul class="ticks">
+            <li><b>Business rules</b> in plain words, like "revenue means invoiced orders"</li>
+            <li><b>👍 approves an answer</b> as an example for similar questions</li>
+            <li><b>Test a question</b> to see what the AI would be told, with no AI call</li>
+          </ul>
+        </div>
+        <figure class="shot reveal" style="--d:.1s">
+          <div class="mk" role="img" aria-label="Illustration: the AI Knowledge page with snapshot counts for tables and attributes, tabs for business rules, testing, learning and browsing, and three active business rules.">
+            <div class="mk-bar" aria-hidden="true"><i></i><i></i><i></i><span class="mk-url">shop.example.com/admin/aireports/knowledge</span></div>
+            <div class="mk-page" aria-hidden="true">
+              <div class="m-head"><div class="m-title">AI Knowledge</div><div class="m-actions"><span class="m-pill ok">Up to date · built today 03:00</span><span class="m-btn m-btn-sm m-hide-sm">Rebuild</span></div></div>
+              <div class="m-stats"><div class="m-stat"><b>412</b><span>tables</span></div><div class="m-stat"><b>1,186</b><span>attributes</span></div><div class="m-stat"><b>37</b><span>tables with custom columns</span></div><div class="m-stat"><b>3</b><span>business rules</span></div></div>
+              <div class="m-tabs"><span class="m-tab on">Business rules <i>3</i></span><span class="m-tab">Test a question</span><span class="m-tab m-hide-sm">Learning</span><span class="m-tab m-hide-sm">Browse snapshot</span></div>
+              <div class="m-note"><div class="m-note-head"><b>Product visibility depends on customer group</b><span class="m-pill ok">Active</span></div><p>Trade customers only see products in the Trade category. Check the customer group before saying a product is missing.</p></div>
+              <div class="m-note"><div class="m-note-head"><b>Outdoor and Kids are brands, not countries</b><span class="m-pill ok">Active</span></div><p>Each brand is a store view in the Main website. "Outdoor" means store view outdoor (3).</p></div>
+              <div class="m-note"><div class="m-note-head"><b>Revenue means invoiced orders</b><span class="m-pill ok">Active</span></div><p>Use base_grand_total of invoiced orders. Leave out cancelled and closed orders.</p></div>
+            </div>
+          </div>
+          <figcaption>Illustration with sample data</figcaption>
+        </figure>
+      </div>
+
+      <div class="feature flip">
+        <div class="feature-text reveal">
+          <span class="kicker">Usage and budget</span>
+          <h3>Costs you can see, and cap.</h3>
+          <p>You pay your AI provider directly, so the module shows what every question costs and who's asking. Set a monthly budget and a daily limit per person if you want a hard stop.</p>
+          <ul class="ticks">
+            <li><b>Quick, Standard or Thorough</b> per question</li>
+            <li><b>Today, this month and all-time</b> spend, per person</li>
+            <li><b>Prompt caching</b> and re-used answers keep it low</li>
+          </ul>
+        </div>
+        <figure class="shot reveal" style="--d:.1s">
+          <div class="mk" role="img" aria-label="Illustration: the usage panel with a monthly budget bar at 18 dollars 40 of 50, spend for today, this month and all time, and the top users this month.">
+            <div class="mk-bar" aria-hidden="true"><i></i><i></i><i></i><span class="mk-url">shop.example.com/admin/aireports/query</span></div>
+            <div class="mk-page" aria-hidden="true">
+              <div class="m-card">
+                <div class="m-card-title">Usage <small>Claude Sonnet 5.5</small></div>
+                <div class="m-budget"><div class="m-budget-row"><b>$18.40</b> of $50 used in November · <span class="m-left">$31.60 left</span></div><div class="m-bar"><i style="--w:37%"></i></div></div>
+                <div class="m-stats three">
+                  <div class="m-stat"><span>Today</span><b>$0.96</b><span>11 questions · 214k tokens</span></div>
+                  <div class="m-stat"><span>This month</span><b>$18.40</b><span>204 questions · 3.9M tokens</span></div>
+                  <div class="m-stat"><span>All time</span><b>$41.75</b><span>468 questions · 9.2M tokens</span></div>
+                </div>
+                <div class="m-card-title" style="margin-top:4px">Top users this month</div>
+                <div class="m-table-wrap"><table class="m-table">
+                  <thead><tr><th>User</th><th class="n">Questions</th><th class="n">Tokens</th><th class="n">Cost</th></tr></thead>
+                  <tbody>
+                    <tr><td>priya</td><td class="n">86</td><td class="n">1.6M</td><td class="n">$7.12</td></tr>
+                    <tr><td>sam</td><td class="n">61</td><td class="n">1.1M</td><td class="n">$5.40</td></tr>
+                    <tr><td>alex</td><td class="n">42</td><td class="n">0.9M</td><td class="n">$4.31</td></tr>
+                  </tbody>
+                </table></div>
+              </div>
+            </div>
+          </div>
+          <figcaption>Illustration with sample data</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= WHAT TEAMS ASK ======================= -->
+  <section id="questions" class="tight">
+    <div class="wrap center reveal">
+      <span class="label"><b>02</b> / What teams ask</span>
+      <h2>If it's in the database, <span>just ask.</span></h2>
+      <p class="section-lead">Product visibility, stock, orders, customers and store setup. A few of the questions it answers every day:</p>
+    </div>
+    <div class="marquee reveal">
+      <div class="marquee-track">
+        <span class="q-chip"><i>Catalog</i>Why is SKU 24-MB01 not showing in the Outdoor store view?</span>
+        <span class="q-chip"><i class="t2">Orders</i>Orders and revenue by country last month</span>
+        <span class="q-chip"><i class="t3">Customers</i>Customers who ordered 3+ times but not since June</span>
+        <span class="q-chip"><i>Catalog</i>Which enabled products have no image?</span>
+        <span class="q-chip"><i class="t4">Setup</i>Which attributes are set per store view?</span>
+        <span class="q-chip"><i class="t2">Orders</i>Orders still pending payment after 2 days</span>
+        <span class="q-chip"><i>Catalog</i>Products in Sale with no special price</span>
+        <span aria-hidden="true" class="q-chip"><i>Catalog</i>Why is SKU 24-MB01 not showing in the Outdoor store view?</span>
+        <span aria-hidden="true" class="q-chip"><i class="t2">Orders</i>Orders and revenue by country last month</span>
+        <span aria-hidden="true" class="q-chip"><i class="t3">Customers</i>Customers who ordered 3+ times but not since June</span>
+        <span aria-hidden="true" class="q-chip"><i>Catalog</i>Which enabled products have no image?</span>
+        <span aria-hidden="true" class="q-chip"><i class="t4">Setup</i>Which attributes are set per store view?</span>
+        <span aria-hidden="true" class="q-chip"><i class="t2">Orders</i>Orders still pending payment after 2 days</span>
+        <span aria-hidden="true" class="q-chip"><i>Catalog</i>Products in Sale with no special price</span>
+      </div>
+    </div>
+    <div class="marquee rev reveal">
+      <div class="marquee-track">
+        <span class="q-chip"><i class="t2">Orders</i>Top 20 coupon codes this quarter</span>
+        <span class="q-chip"><i>Catalog</i>Out-of-stock products that are still visible</span>
+        <span class="q-chip"><i class="t3">Customers</i>New customers per website this year</span>
+        <span class="q-chip"><i class="t4">Setup</i>Which modules add columns to sales_order?</span>
+        <span class="q-chip"><i class="t2">Orders</i>Average order value per store view in October</span>
+        <span class="q-chip"><i>Catalog</i>Configurable products with a disabled child</span>
+        <span class="q-chip"><i class="t4">Setup</i>Which cron jobs failed today?</span>
+        <span aria-hidden="true" class="q-chip"><i class="t2">Orders</i>Top 20 coupon codes this quarter</span>
+        <span aria-hidden="true" class="q-chip"><i>Catalog</i>Out-of-stock products that are still visible</span>
+        <span aria-hidden="true" class="q-chip"><i class="t3">Customers</i>New customers per website this year</span>
+        <span aria-hidden="true" class="q-chip"><i class="t4">Setup</i>Which modules add columns to sales_order?</span>
+        <span aria-hidden="true" class="q-chip"><i class="t2">Orders</i>Average order value per store view in October</span>
+        <span aria-hidden="true" class="q-chip"><i>Catalog</i>Configurable products with a disabled child</span>
+        <span aria-hidden="true" class="q-chip"><i class="t4">Setup</i>Which cron jobs failed today?</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= HOW IT WORKS ======================= -->
+  <section id="how">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="label"><b>03</b> / How it works</span>
+        <h2>Running in about <span>15 minutes.</span></h2>
+        <p class="section-lead">No new servers and no data leaving your control, except the questions you send to your own AI provider.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><span class="step-n">01</span><h3>Install</h3><p>One Composer command with your licence key, plus a read-only MySQL user your database admin creates. The docs walk you through it.</p></div>
+        <div class="step reveal" style="--d:.1s"><span class="step-n">02</span><h3>It learns your store</h3><p>A snapshot of your tables, attributes, store views and modules builds itself in seconds, then refreshes every week.</p></div>
+        <div class="step reveal" style="--d:.2s"><span class="step-n">03</span><h3>Ask</h3><p>Anyone you give access to opens Reports › AI SQL Reports and asks. Answers usually take 5 to 40 seconds.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= WHY IT WORKS ======================= -->
+  <section id="why" class="tight">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="label"><b>04</b> / Built for real stores</span>
+        <h2>It knows your store, <span>not just Magento.</span></h2>
+        <p class="section-lead">Generic AI-to-SQL tools break on real installations: custom attributes, third-party tables, columns added to core tables, brands as store views, rules that live in code. AI Reports is built for exactly that.</p>
+      </div>
+      <div class="grid grid-3">
+        <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div><h3>Store snapshot</h3><p>Websites, store views, every attribute with its options, every table and column, and which module owns it. Rebuilt weekly and after changes.</p></div>
+        <div class="card reveal" style="--d:.06s"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg></div><h3>Your business rules</h3><p>Write down what the database can't tell, like "visibility depends on customer group". The AI treats your rules as authoritative.</p></div>
+        <div class="card reveal" style="--d:.12s"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><h3>Checks before it guesses</h3><p>Before writing a query, it looks up the real store view, SKU, category or column values, so filters match what exists.</p></div>
+        <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg></div><h3>Two modes</h3><p><b>Answer</b> explains what it found, with evidence. <b>Table + CSV</b> runs one query and gives you the rows to download.</p></div>
+        <div class="card reveal" style="--d:.06s"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></div><h3>Learns with approval</h3><p>A 👍 turns an answer into an example. The same question asked again re-runs the approved query with no AI cost.</p></div>
+        <div class="card reveal" style="--d:.12s"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.4-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2-.5-2.5-1.5M12 6.5V8M12 16v1.5"/></svg></div><h3>Costs under control</h3><p>Quick, Standard or Thorough per question. Prompt caching, a monthly budget, a daily limit per person, and saved reports that cost nothing to re-run.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= RESULTS ======================= -->
+  <section id="results" class="tight">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="label"><b>05</b> / Measured</span>
+        <h2>Tested on a real, <span>complicated store.</span></h2>
+        <p class="section-lead">An Adobe Commerce 2.4.8 installation with more than 700 modules, content staging, multi-source inventory, B2B and over 30 store views. Nine real questions with known answers, covering product visibility, stock, orders and store setup.</p>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><b data-count="9" data-suffix=" of 9">9 of 9</b><span>answered correctly</span></div>
+        <div class="stat"><b data-count="0.11" data-prefix="$" data-decimals="2">$0.11</b><span>average cost per question</span></div>
         <div class="stat"><b>6–39 s</b><span>time per answer</span></div>
         <div class="stat"><b>0</b><span>writes to the database</span></div>
       </div>
@@ -86,34 +397,43 @@
     </div>
   </section>
 
+  <!-- ======================= SECURITY ======================= -->
   <section id="security">
-    <div class="wrap grid grid-2" style="gap:40px; align-items:start">
-      <div>
-        <h2>Read-only, at every layer.</h2>
-        <p class="section-lead">It runs AI-written SQL against production, so safety does not rest on any single check.</p>
+    <div class="wrap split">
+      <div class="reveal">
+        <span class="label"><b>06</b> / Safe by design</span>
+        <h2>Read-only, <span>at every layer.</span></h2>
+        <p class="section-lead">It runs AI-written SQL against production, so safety never rests on a single check.</p>
         <p class="fine">Anyone with access reads every non-blocked table across all websites, so grant it only to roles that may see that data.</p>
       </div>
-      <ul class="checks">
+      <ul class="checks reveal" style="--d:.1s">
         <li><b>A separate read-only MySQL user</b>, set only in env.php, plus a forced read-only session.</li>
         <li><b>One SELECT per query.</b> Comments, multiple statements, variables, system schemas and file functions are rejected.</li>
         <li><b>Credential tables are never readable</b>, such as admin users, tokens, API keys, payment tokens and config. The AI is never told they exist.</li>
         <li><b>Row limits and a statement timeout</b> on every query.</li>
-        <li><b>Personal data is masked</b> in anything sent back to the AI. Table + CSV mode sends no rows at all.</li>
+        <li><b>Personal and payment data is masked</b> in anything sent back to the AI. Table + CSV mode sends no rows at all.</li>
         <li><b>Full audit log</b> of every question, query, user, token count and cost.</li>
         <li><b>Your AI key, your data.</b> Questions go straight from your server to your AI provider. We never see them.</li>
       </ul>
     </div>
   </section>
 
+  <!-- ======================= PRICING ======================= -->
   <section id="pricing">
     <div class="wrap">
-      <h2>Simple yearly pricing, per store.</h2>
-      <p class="section-lead">Staging, test and local copies are included. If you stop renewing, you keep every version you received, forever.</p>
+      <div class="center reveal">
+        <span class="label"><b>07</b> / Pricing</span>
+        <h2>Simple yearly pricing, <span>per store.</span></h2>
+        <p class="section-lead">Staging, test and local copies are included. If you stop renewing, you keep every version you received, forever.</p>
+        <p class="offer-note" data-offer hidden><b>Launch offer:</b> 50% off your first year on every plan, until 31 December 2026 (11:59 PM India time). Applied automatically at checkout.</p>
+      </div>
       <div class="plans">
-        <div class="plan">
+        <div class="plan reveal">
           <div class="plan-name">Open Source</div>
           <div class="plan-for">Magento Open Source, one store</div>
-          <div class="price">$399 <small>/ year</small></div>
+          <div class="price" data-no-offer>$399 <small>/ year</small></div>
+          <div class="price" data-offer hidden><s>$399</s> $199.50 <small>first year</small></div>
+          <div class="plan-then" data-offer hidden>then $399 / year</div>
           <ul>
             <li>One production installation</li>
             <li>All features and updates</li>
@@ -122,10 +442,12 @@
           </ul>
           <a class="btn btn-ghost" data-checkout="opensource" href="#">Buy</a>
         </div>
-        <div class="plan featured">
+        <div class="plan featured reveal" style="--d:.08s">
           <div class="plan-name">Adobe Commerce</div>
           <div class="plan-for">Adobe Commerce or Open Source, one store</div>
-          <div class="price">$899 <small>/ year</small></div>
+          <div class="price" data-no-offer>$899 <small>/ year</small></div>
+          <div class="price" data-offer hidden><s>$899</s> $449.50 <small>first year</small></div>
+          <div class="plan-then" data-offer hidden>then $899 / year</div>
           <ul>
             <li>Content staging and B2B support</li>
             <li>One production installation</li>
@@ -134,10 +456,12 @@
           </ul>
           <a class="btn btn-primary" data-checkout="commerce" href="#">Buy</a>
         </div>
-        <div class="plan">
+        <div class="plan reveal" style="--d:.16s">
           <div class="plan-name">Agency</div>
           <div class="plan-for">For agencies managing client stores</div>
-          <div class="price">$2,499 <small>/ year</small></div>
+          <div class="price" data-no-offer>$2,499 <small>/ year</small></div>
+          <div class="price" data-offer hidden><s>$2,499</s> $1,249.50 <small>first year</small></div>
+          <div class="plan-then" data-offer hidden>then $2,499 / year</div>
           <ul>
             <li>Up to 10 production installations</li>
             <li>Any edition</li>
@@ -147,20 +471,41 @@
           <a class="btn btn-ghost" data-checkout="agency" href="#">Buy</a>
         </div>
       </div>
-      <p class="fine">Prices in USD, before tax. Checkout is handled by Polar, which also handles VAT and sales tax. AI usage is billed by your AI provider, not by us.</p>
+      <p class="fine center">Prices in USD, before tax. Checkout is handled by Polar, which also handles VAT and sales tax. AI usage is billed by your AI provider, not by us.</p>
     </div>
   </section>
 
-  <section id="faq">
-    <div class="wrap" style="max-width:820px">
-      <h2>Questions</h2>
-      <details><summary>Does my store data go to you?</summary><p>No. Questions, queries and results go from your server to the AI provider you choose, under your own account. The only call to us is a daily licence check that sends the licence key, your domain and the module and Magento versions.</p></details>
-      <details><summary>What does the AI usage cost?</summary><p>On our test store a question averaged $0.11 with Claude Opus 5.5, from $0.04 for simple counts to $0.37 for a full "why isn't this showing" diagnosis. The Quick preset costs about half. Saved reports and re-used approved answers cost nothing.</p></details>
-      <details><summary>Which AI providers work?</summary><p>Anthropic (recommended), OpenAI, Google Gemini, or any OpenAI-compatible endpoint. You pick a model for each quality preset.</p></details>
-      <details><summary>Can it change or delete data?</summary><p>No. It connects as a separate MySQL user that only has SELECT, forces a read-only session, and rejects anything that isn't a single SELECT before it reaches the database.</p></details>
-      <details><summary>What happens if I don't renew?</summary><p>Everything keeps working. You keep every version released while your plan was active, and Composer can still install them. You stop getting new versions, rule packs and support until you renew.</p></details>
-      <details><summary>Do staging servers need their own licence?</summary><p>No. Local, test and staging domains, including Adobe Commerce Cloud integration and staging environments, never count towards your limit.</p></details>
-      <details><summary>What are the requirements?</summary><p>Magento Open Source or Adobe Commerce 2.4 on PHP 8.2 or 8.3, MySQL or MariaDB, and an API key from an AI provider. Tested on Adobe Commerce 2.4.8 with MariaDB 10.6.</p></details>
+  <!-- ======================= FAQ ======================= -->
+  <section id="faq" class="tight">
+    <div class="wrap">
+      <div class="center reveal">
+        <span class="label"><b>08</b> / Questions</span>
+        <h2>Good questions, <span>answered.</span></h2>
+      </div>
+      <div class="faq reveal">
+        <details><summary>Does my store data go to you?</summary><p>No. Questions, queries and results go from your server to the AI provider you choose, under your own account. The only call to us is a daily licence check that sends the licence key, your domain and the module and Magento versions.</p></details>
+        <details><summary>What does the AI usage cost?</summary><p>On our test store a question averaged $0.11 with Claude Opus 5.5, from $0.04 for simple counts to $0.37 for a full "why isn't this showing" diagnosis. The Quick preset costs about half. Saved reports and re-used approved answers cost nothing.</p></details>
+        <details><summary>Which AI providers work?</summary><p>Anthropic (recommended), OpenAI, Google Gemini, or any OpenAI-compatible endpoint. You pick a model for each quality preset.</p></details>
+        <details><summary>Can it change or delete data?</summary><p>No. It connects as a separate MySQL user that only has SELECT, forces a read-only session, and rejects anything that isn't a single SELECT before it reaches the database.</p></details>
+        <details><summary>Can I use one licence on staging and production?</summary><p>Yes. One key works on every environment. Local, test and staging domains, including Adobe Commerce Cloud integration and staging environments, never count towards your limit; only production stores do.</p></details>
+        <details><summary>What happens if I don't renew?</summary><p>Everything keeps working. You keep every version released while your plan was active, and Composer can still install them. You stop getting new versions, rule packs and support until you renew.</p></details>
+        <details><summary>What are the requirements?</summary><p>Magento Open Source or Adobe Commerce 2.4 on PHP 8.2 or 8.3, MySQL or MariaDB, and an API key from an AI provider. Tested on Adobe Commerce 2.4.8 with MariaDB 10.6.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= CLOSING CTA ======================= -->
+  <section class="tight">
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <span class="blob blob-2" aria-hidden="true"></span>
+        <h2>Give your team <span>the answers.</span></h2>
+        <p>Install it in about 15 minutes, keep your data on your server, and stop writing tickets for simple questions.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#pricing">Get a licence <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" data-contact href="#">Email us</a>
+        </div>
+      </div>
     </div>
   </section>
 </main>

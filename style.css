@@ -393,3 +393,21 @@ details p { color: var(--text-2); margin: 0 0 22px; max-width: 46em; }
 .plan-then { font-size: 13.5px; color: var(--text-3); margin-top: 6px; }
 
 [hidden] { display: none !important; }
+
+/* who's behind it */
+.founder { display: grid; grid-template-columns: 200px 1fr; gap: 48px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: clamp(24px, 4vw, 48px); }
+@media (max-width: 760px) { .founder { grid-template-columns: 1fr; gap: 24px; } }
+.founder-photo { width: 180px; height: 180px; border-radius: 18px; object-fit: cover; box-shadow: 0 12px 30px rgba(24, 24, 20, .12); }
+@media (max-width: 760px) { .founder-photo { width: 120px; height: 120px; } }
+.founder-text h2 { font-size: clamp(28px, 3.4vw, 42px); }
+.founder-text p { color: var(--text-2); max-width: 40em; margin: 0 0 14px; }
+.founder-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.founder-links .btn { padding: 9px 16px; font-size: 14px; }
+
+/* reassurance under the plans */
+.assure { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+@media (max-width: 760px) { .assure { grid-template-columns: 1fr; } }
+.assure-item { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+.assure-item svg { flex: 0 0 22px; width: 22px; height: 22px; color: var(--ok); margin-top: 2px; }
+.assure-item b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+.assure-item span { color: var(--text-2); font-size: 14.5px; }

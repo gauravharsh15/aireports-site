@@ -35,7 +35,11 @@ document.querySelectorAll("[data-checkout]").forEach((el) => {
 
 document.querySelectorAll("[data-contact]").forEach((el) => {
   if (SITE.contactEmail) {
-    el.href = "mailto:" + SITE.contactEmail;
+    // data-subject / data-body pre-fill the e-mail (body uses %0A for new lines).
+    const parts = [];
+    if (el.dataset.subject) parts.push("subject=" + encodeURIComponent(el.dataset.subject));
+    if (el.dataset.body) parts.push("body=" + el.dataset.body.split("%0A").map(encodeURIComponent).join("%0A"));
+    el.href = "mailto:" + SITE.contactEmail + (parts.length ? "?" + parts.join("&") : "");
     if (!el.textContent.trim()) el.textContent = SITE.contactEmail;
   } else {
     el.remove();

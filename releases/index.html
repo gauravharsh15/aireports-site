@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Reports releases: what changed in each version</title>
+  <meta name="description" content="What changed in each version of AI Reports for Magento 2 and Adobe Commerce, newest first, with update instructions.">
+  <link rel="canonical" href="https://gauravextensions.com/releases/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AI Reports releases">
+  <meta property="og:description" content="What changed in each version of AI Reports for Magento 2 and Adobe Commerce, newest first, with update instructions.">
+  <meta property="og:url" content="https://gauravextensions.com/releases/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <h1>Releases</h1>
+    <p class="lead-left">What changed in each version, newest first. To update, follow <a href="/docs.html">Docs › Updating</a>. If you stop renewing, you keep every version released while your plan was active.</p>
+
+    <section class="release" id="v3-0-1">
+      <h2>3.0.1 <span class="release-date">20 November 2026</span></h2>
+      <p class="release-title">More accurate answers on Adobe Commerce</p>
+      <ul><li><b>Product links on Adobe Commerce.</b> Configurable, bundle and grouped links, related products, custom options, tier prices, price rules and CMS store assignments point at a product <i>version</i> (<code>row_id</code>) on Adobe Commerce, not the ID the admin shows. AI Reports now reads which columns these are from your own database, third-party tables included, so "why isn't this product showing?" answers no longer claim that linked variants aren't linked.</li><li>Visibility "Catalog" and "Search" are told apart, and stock answers use the website's own stock and account for MSI reservations.</li><li>The <b>Additional Instructions</b> setting was removed. Put that text in business rules; the AI Knowledge page shows the old text, and how to delete it, until you do.</li><li>After updating, the store snapshot rebuilds overnight, or run <code>bin/magento aireports:knowledge:build</code> straight away.</li></ul>
+    </section>
+    <section class="release" id="v3-0-0">
+      <h2>3.0.0 <span class="release-date">17 November 2026</span></h2>
+      <p class="release-title">First commercial release</p>
+      <ul><li><b>It learns your store.</b> A snapshot of your installation (store views, every attribute and its options, every table and column and the module that owns it, and the real values of code columns), rebuilt weekly and after changes.</li><li><b>Business rules</b> in plain words for what the database can't tell, plus the <b>AI Knowledge</b> page: test what the AI would be told, browse the snapshot, and review answers marked wrong.</li><li><b>Answer</b> and <b>Table + CSV</b> modes, and <b>Quick</b>, <b>Standard</b> and <b>Thorough</b> per question. Thorough double-checks before you see the answer.</li><li>Checks before it guesses: it looks up the real store view, SKU, category or column values before writing a query, and tries again when nothing matched.</li><li>Learning with approval: 👍 turns an answer into an example, and the same question asked again re-runs the approved query.</li><li><b>Saved reports</b> that anyone with access can re-run at no AI cost.</li><li><b>Usage and budget:</b> cost per question, a monthly budget, and a daily limit per person.</li><li>Stronger privacy: personal and payment data masked before anything goes to the AI, also inside JSON and renamed columns, and raw payment tables always blocked.</li><li>Licence key, private Composer repository, and command-line tools to build and check the snapshot, copy business rules, and measure accuracy on your own questions.</li></ul>
+    </section>
+
+    <h2>Version 2 (free, open source)</h2>
+    <p>Version 2 is the free edition on <a href="https://github.com/gauravharsh15/magento2-ai-reports">GitHub</a>. It turns a question into one read-only query and shows you the table.</p>
+    <table>
+      <tr><th>Version</th><th>Date</th><th>What changed</th></tr>
+      <tr><td><b>2.0.6</b></td><td>28 September 2026</td><td>A trust and disclaimer notice on the query page.</td></tr><tr><td><b>2.0.5</b></td><td>25 September 2026</td><td>Blocks MySQL system schemas and server-introspection functions.</td></tr><tr><td><b>2.0.4</b></td><td>18 September 2026</td><td>Two-factor authentication settings and saved-card links added to the always-blocked tables.</td></tr><tr><td><b>2.0.3</b></td><td>17 September 2026</td><td>Fixed the date column in the query log grid.</td></tr><tr><td><b>2.0.2</b></td><td>8 September 2026</td><td>Fixed an error when opening the read-only connection.</td></tr><tr><td><b>2.0.1</b></td><td>8 September 2026</td><td>Read-only database credentials moved from the admin to <code>app/etc/env.php</code>.</td></tr><tr><td><b>2.0.0</b></td><td>8 September 2026</td><td>Read-only database access enforced at several layers, and a full audit log.</td></tr>
+    </table>
+    <p>Version 1 was the first public version, in March 2026.</p>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

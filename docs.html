@@ -118,7 +118,9 @@ bin/magento aireports:knowledge:rules import rules.json</code></pre>
 <pre><code>composer update gauravharsh/module-ai-reports
 bin/magento setup:upgrade
 bin/magento setup:di:compile
-bin/magento cache:flush</code></pre>
+bin/magento cache:flush
+bin/magento aireports:knowledge:build</code></pre>
+    <p>The last command applies the new version's built-in knowledge straight away; otherwise the daily check rebuilds the snapshot overnight. See <a href="releases/">what changed in each version</a>.</p>
     <p>Coming from 2.x: add the repository and key from step 1, then raise your constraint from <code>^2.0</code> to <code>^3.0</code>.</p>
 
     <h2>What leaves your server</h2>
@@ -139,6 +141,7 @@ bin/magento cache:flush</code></pre>
     <nav>
       <a href="guides/">Guides</a>
       <a href="docs.html">Docs</a>
+      <a href="releases/">Releases</a>
       <a href="guide.pdf">User guide (PDF)</a>
       <a href="licence.html">Licence</a>
       <a href="privacy.html">Privacy</a>

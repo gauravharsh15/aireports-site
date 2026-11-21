@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Can ChatGPT write SQL for Magento? 7 mistakes to watch for</title>
+  <meta name="description" content="ChatGPT can write Magento SQL, but it doesn&#x27;t know your store. Seven common mistakes, from EAV columns to the &#x27;holded&#x27; status, and how to avoid them.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/chatgpt-magento-sql/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Can ChatGPT write SQL for Magento? 7 mistakes to watch for">
+  <meta property="og:description" content="ChatGPT can write Magento SQL, but it doesn&#x27;t know your store. Seven common mistakes, from EAV columns to the &#x27;holded&#x27; status, and how to avoid them.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/chatgpt-magento-sql/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Can ChatGPT write SQL for your Magento store?", "description": "ChatGPT can write Magento SQL, but it doesn't know your store. Seven common mistakes, from EAV columns to the 'holded' status, and how to avoid them.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/chatgpt-magento-sql/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › AI and your store data</p>
+    <h1>Can ChatGPT write SQL for your Magento store?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> it can write a query that looks right. But it doesn't know your store, so on real Magento data it often fails, or worse, runs fine and returns the wrong number. These are the mistakes we see most. Each one was checked on a real Magento 2.4 database.</p>
+
+    <h2>1. It treats product details as columns</h2>
+    <p>Ask for product names and prices and you'll often get <code>SELECT sku, name, price FROM catalog_product_entity</code>. It fails with <i>Unknown column 'name'</i>. Magento keeps names, prices, status and most other product details in separate attribute tables (the "EAV" model). The main product table only has a few columns, such as <code>entity_id</code>, <code>sku</code>, <code>type_id</code> and <code>attribute_set_id</code>.</p>
+
+    <h2>2. It ignores store-view values</h2>
+    <p>A product's name, status or visibility can be different in each store view. Read only the default value and you get the wrong answer for any store view that overrides it, which is exactly where "why isn't this product showing in France?" problems live.</p>
+
+    <h2>3. On Adobe Commerce, it joins on the wrong ID</h2>
+    <p>Adobe Commerce stores each product's details per version (for scheduled updates), linked by <code>row_id</code>, not <code>entity_id</code>. Open Source-style SQL fails there with <i>Unknown column 'v.entity_id'</i>. Use <code>row_id</code> without the version filter and it can count the same product more than once.</p>
+
+    <h2>4. It counts configurable products twice in sales</h2>
+    <p>When someone buys a configurable product, the order has two item rows: the product and the variant they picked. Add up <code>qty_ordered</code> over every row and that sale counts twice. You need to count only the top-level rows (<code>parent_item_id IS NULL</code>) or only the variants.</p>
+
+    <h2>5. It guesses order status names</h2>
+    <p>Magento stores status <i>codes</i>, not the labels you see, and some are odd: "On Hold" is stored as <code>holded</code>. A guessed <code>WHERE status = 'on_hold'</code> returns zero rows, which looks like "no orders on hold". Your store may have custom statuses too.</p>
+
+    <h2>6. It forgets that dates are stored in UTC</h2>
+    <p>Order dates in the database are in UTC, while your admin shows your store's time zone. "Orders yesterday" can be several hours off, which matters most at month end.</p>
+
+    <h2>7. It doesn't know your extensions</h2>
+    <p>Extensions add their own tables, and their own columns to core tables such as <code>sales_order</code>. A general AI has never seen them, so questions about gift cards, B2B quotes or loyalty points get invented table names.</p>
+
+    <h2>And one safety rule</h2>
+    <p class="callout">Never run AI-written SQL with a database user that can change data. A chat can produce an <code>UPDATE</code> or <code>DELETE</code> as easily as a <code>SELECT</code>. Use a read-only user, ideally on a copy of the database.</p>
+
+    <h2>How to get reliable answers</h2>
+    <p>If you use a general chatbot, give it your actual table structure and store setup, and check every query before you run it. Or use a tool built for Magento: <a href="/">AI Reports</a> builds a snapshot of your installation (attributes, store views, status codes, <code>row_id</code> columns, extension tables), checks values like SKUs before writing the query, runs a single read-only <code>SELECT</code>, and shows you the query it ran.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How many orders are on hold right now?”</p>
+      <p>It knows your status codes, so “on hold” finds holded. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-ai-reporting/">AI reporting for Magento: ask your store data in plain English</a></li><li><a href="/guides/ai-magento-database-safety/">Is it safe to connect AI to your Magento database?</a></li><li><a href="/guides/questions-to-ask-your-magento-data/">50 questions you can ask your Magento store data</a></li><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

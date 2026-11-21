@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI reporting for Magento: ask your store data in plain English</title>
+  <meta name="description" content="How AI reporting works in Magento 2 and Adobe Commerce: plain-English questions, answers or CSV tables, accuracy, cost per question and its limits.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/magento-ai-reporting/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="AI reporting for Magento: ask your store data in plain English">
+  <meta property="og:description" content="How AI reporting works in Magento 2 and Adobe Commerce: plain-English questions, answers or CSV tables, accuracy, cost per question and its limits.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/magento-ai-reporting/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "AI reporting for Magento: ask your store data in plain English", "description": "How AI reporting works in Magento 2 and Adobe Commerce: plain-English questions, answers or CSV tables, accuracy, cost per question and its limits.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/magento-ai-reporting/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › AI and your store data</p>
+    <h1>AI reporting for Magento: ask your store data in plain English</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> AI reporting lets anyone on your team type a question such as <i>"How many orders did the UK website get last month, by status?"</i> in the Magento admin, and get the answer or a table they can download, without building a report or waiting for a developer.</p>
+
+    <h2>How it works</h2>
+    <ol class="checklist">
+      <li><b>You ask</b> in everyday language, and choose a short answer or a table.</li>
+      <li><b>The AI prepares a query.</b> It reads a snapshot of how <i>your</i> store is set up (store views, attributes, order statuses, the tables your extensions added) and checks details such as SKUs before it writes the query.</li>
+      <li><b>The query runs read-only</b> on your own database, through a separate user that can't change anything.</li>
+      <li><b>You get the result:</b> a written answer with the assumptions it made, or a table with a CSV download. The exact query is one click away.</li>
+    </ol>
+
+    <h2>What you can ask</h2>
+    <p>Anything the Magento database knows: orders and revenue, customers and customer groups, products and attributes, stock, promotions, store setup, and "why" questions such as <i>"Why is this product not showing in the French store view?"</i>. See <a href="/guides/questions-to-ask-your-magento-data/">50 example questions</a>.</p>
+
+    <h2>Why a general chatbot isn't enough</h2>
+    <p>Magento's database is unusual: product details are spread across many tables, values can differ per store view, Adobe Commerce adds versioning, and every store has its own extensions. A general AI doesn't know any of that about your store, so its queries fail or quietly return the wrong number. <a href="/guides/chatgpt-magento-sql/">Seven mistakes ChatGPT makes with Magento SQL</a>.</p>
+
+    <h2>How accurate is it?</h2>
+    <p>On an Adobe Commerce store with about 700 modules, AI Reports answered 9 of 9 real support questions correctly. That's a small test, so every answer shows what it assumed and the query it ran, and your team can mark answers right or wrong. Answers marked right are reused for similar questions.</p>
+
+    <h2>What does it cost to run?</h2>
+    <p>You use your own AI provider account (OpenAI, Anthropic Claude, Google Gemini, or any OpenAI-compatible service), so you pay them per question. In that same test, a question cost about <b>$0.05</b> with Claude Sonnet 5.5 and about <b>$0.11</b> with Claude Opus 5.5. Saved reports re-run at no AI cost, and you can set a monthly budget and a daily limit per person.</p>
+
+    <h2>What it can't do</h2>
+    <ul>
+      <li>It only knows your Magento database: no Google Analytics, ads, ERP or email platform data.</li>
+      <li>It can be wrong. Read the "Assumed" line and check any figure you plan to share.</li>
+      <li>Every question stands alone: it doesn't remember the one before.</li>
+    </ul>
+    <p>Is it safe? Read <a href="/guides/ai-magento-database-safety/">the 10-point safety checklist</a>, and how AI Reports answers each point.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How many orders did the UK website get last month, by status?”</p>
+      <p>You get the numbers first, then the evidence and what it assumed. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/chatgpt-magento-sql/">Can ChatGPT write SQL for your Magento store?</a></li><li><a href="/guides/ai-magento-database-safety/">Is it safe to connect AI to your Magento database?</a></li><li><a href="/guides/questions-to-ask-your-magento-data/">50 questions you can ask your Magento store data</a></li><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

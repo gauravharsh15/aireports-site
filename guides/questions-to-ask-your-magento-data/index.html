@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>50 questions to ask your Magento store data (with examples)</title>
+  <meta name="description" content="Fifty practical questions about orders, customers, products, stock, promotions and store setup that Magento store teams ask, phrased to get the right answer.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/questions-to-ask-your-magento-data/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="50 questions to ask your Magento store data (with examples)">
+  <meta property="og:description" content="Fifty practical questions about orders, customers, products, stock, promotions and store setup that Magento store teams ask, phrased to get the right answer.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/questions-to-ask-your-magento-data/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "50 questions you can ask your Magento store data", "description": "Fifty practical questions about orders, customers, products, stock, promotions and store setup that Magento store teams ask, phrased to get the right answer.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/questions-to-ask-your-magento-data/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › AI and your store data</p>
+    <h1>50 questions you can ask your Magento store data</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> if it's in the Magento database, you can ask it. Below are 50 questions store teams ask most, grouped by topic. Use them with an AI reporting tool, or hand them to your developer.</p>
+    <p><b>Tip:</b> a good question has four parts: <i>what</i> (number of orders, top 10 SKUs), <i>where</i> (website, store view, customer group), <i>when</i> (last month, 1–15 November) and <i>how</i> (by status, with SKU and price). "Table" marks questions whose answer is a list you'll want as a spreadsheet.</p>
+
+    <h2>Orders and sales</h2>
+    <ul class="qlist"><li><span>How many orders did we receive last month, by status?</span><span class="qtag">Answer</span></li><li><span>What was our revenue per website last month, excluding canceled orders?</span><span class="qtag">Answer</span></li><li><span>What&#x27;s our average order value per month this year?</span><span class="qtag">Answer</span></li><li><span>Which payment methods were used last month, and how many orders each?</span><span class="qtag">Answer</span></li><li><span>Which shipping methods do customers choose most?</span><span class="qtag">Answer</span></li><li><span>Which orders are still pending after 3 days?</span><span class="qtag">Table</span></li><li><span>Which countries did our orders come from last quarter?</span><span class="qtag">Answer</span></li><li><span>How many orders used a coupon code last month, and which codes?</span><span class="qtag">Answer</span></li><li><span>Compare orders this October with October last year, per website.</span><span class="qtag">Answer</span></li><li><span>What share of orders came from guests and what share from registered customers?</span><span class="qtag">Answer</span></li></ul>
+    <h2>Customers</h2>
+    <ul class="qlist"><li><span>How many customers registered this month, per customer group?</span><span class="qtag">Answer</span></li><li><span>Who are our top 20 customers by total spend this year?</span><span class="qtag">Table</span></li><li><span>How many customers placed more than one order this year?</span><span class="qtag">Answer</span></li><li><span>Which customers haven&#x27;t ordered in 6 months?</span><span class="qtag">Table</span></li><li><span>How many customer accounts have never placed an order?</span><span class="qtag">Answer</span></li><li><span>Which customer group has the highest average order value?</span><span class="qtag">Answer</span></li><li><span>How many newsletter subscribers do we have?</span><span class="qtag">Answer</span></li><li><span>Which cities do our repeat customers come from?</span><span class="qtag">Answer</span></li></ul>
+    <h2>Products and catalogue</h2>
+    <ul class="qlist"><li><span>Which enabled products have no image?</span><span class="qtag">Table</span></li><li><span>Which enabled products aren&#x27;t in any category?</span><span class="qtag">Table</span></li><li><span>Which products have a price of 0?</span><span class="qtag">Table</span></li><li><span>Which products are enabled by default but disabled in a store view?</span><span class="qtag">Table</span></li><li><span>How many products are in each attribute set?</span><span class="qtag">Answer</span></li><li><span>Which products have no description?</span><span class="qtag">Table</span></li><li><span>Which products were added in the last 30 days?</span><span class="qtag">Table</span></li><li><span>What values does the color attribute have, and how many products use each?</span><span class="qtag">Answer</span></li><li><span>Which configurable products have no variant in stock?</span><span class="qtag">Table</span></li><li><span>Which products still have a special price whose end date has passed?</span><span class="qtag">Table</span></li></ul>
+    <h2>Stock</h2>
+    <ul class="qlist"><li><span>Which products have fewer than 5 units in stock?</span><span class="qtag">Table</span></li><li><span>Which products are out of stock but sold in the last 30 days?</span><span class="qtag">Table</span></li><li><span>What&#x27;s the total stock quantity in each source?</span><span class="qtag">Answer</span></li><li><span>Which products allow backorders?</span><span class="qtag">Table</span></li><li><span>Which products have never sold?</span><span class="qtag">Table</span></li><li><span>Which in-stock products haven&#x27;t sold in 90 days?</span><span class="qtag">Table</span></li></ul>
+    <h2>Prices and promotions</h2>
+    <ul class="qlist"><li><span>Which cart price rules are active right now?</span><span class="qtag">Answer</span></li><li><span>How many times has each coupon code been used?</span><span class="qtag">Table</span></li><li><span>Which catalog price rules apply to the Wholesale customer group?</span><span class="qtag">Answer</span></li><li><span>How much discount did we give in total last month?</span><span class="qtag">Answer</span></li><li><span>Which products have tier prices?</span><span class="qtag">Table</span></li><li><span>How many orders had free shipping last month?</span><span class="qtag">Answer</span></li></ul>
+    <h2>Store setup</h2>
+    <ul class="qlist"><li><span>List all websites and store views with their codes.</span><span class="qtag">Table</span></li><li><span>Which customer groups exist, and how many customers are in each?</span><span class="qtag">Answer</span></li><li><span>Which root category does each store use?</span><span class="qtag">Answer</span></li><li><span>How many active CMS pages does each store view have?</span><span class="qtag">Answer</span></li><li><span>Which attributes are used as filters on category pages?</span><span class="qtag">Answer</span></li></ul>
+    <h2>Troubleshooting</h2>
+    <ul class="qlist"><li><span>Why is SKU ABC-123 not showing in the French store view?</span><span class="qtag">Answer</span></li><li><span>Why can&#x27;t customers buy SKU ABC-123 on the UK website?</span><span class="qtag">Answer</span></li><li><span>Is SKU ABC-123 in stock, and in which sources?</span><span class="qtag">Answer</span></li><li><span>Why does SKU ABC-123 show a different price for wholesale customers?</span><span class="qtag">Answer</span></li><li><span>Which categories are enabled but have no products?</span><span class="qtag">Table</span></li></ul>
+    <p>Replace the SKU, store view, website and dates with your own. These questions only read data from Magento; they don't cover Google Analytics, ads or other systems.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which products are out of stock but sold in the last 30 days?”</p>
+      <p>Type any of these questions as written. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-ai-reporting/">AI reporting for Magento: ask your store data in plain English</a></li><li><a href="/guides/chatgpt-magento-sql/">Can ChatGPT write SQL for your Magento store?</a></li><li><a href="/guides/ai-magento-database-safety/">Is it safe to connect AI to your Magento database?</a></li><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

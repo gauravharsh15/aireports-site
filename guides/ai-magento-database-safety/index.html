@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is it safe to connect AI to your Magento database? Checklist</title>
+  <meta name="description" content="Ten questions to ask before any AI tool queries your Magento store: read-only access, blocked tables, data masking, limits, logs and what leaves your server.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/ai-magento-database-safety/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Is it safe to connect AI to your Magento database? Checklist">
+  <meta property="og:description" content="Ten questions to ask before any AI tool queries your Magento store: read-only access, blocked tables, data masking, limits, logs and what leaves your server.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/ai-magento-database-safety/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Is it safe to connect AI to your Magento database?", "description": "Ten questions to ask before any AI tool queries your Magento store: read-only access, blocked tables, data masking, limits, logs and what leaves your server.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/ai-magento-database-safety/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › AI and your store data</p>
+    <h1>Is it safe to connect AI to your Magento database?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> it can be, if the tool can only read, can't touch sensitive tables, masks personal data before anything goes to the AI provider, and logs every query. Ask any vendor these 10 questions before you install anything.</p>
+
+    <h2>The 10 questions</h2>
+    <ol class="checklist">
+      <li><b>Does it use a separate, read-only database user?</b> Not the main Magento user, which can change everything.</li>
+      <li><b>Is read-only also enforced on each connection?</b> So a wrongly configured user still can't write.</li>
+      <li><b>Does it allow only one SELECT at a time?</b> No multiple statements, no file access, no system tables.</li>
+      <li><b>Are sensitive tables blocked?</b> Admin accounts, API tokens, saved payment cards, the store configuration (which holds keys and passwords) and raw payment data.</li>
+      <li><b>What exactly is sent to the AI provider?</b> Table names, store setup, your question, result rows? Get a clear list.</li>
+      <li><b>Is personal data masked before it leaves your server?</b> Names, emails, addresses, phone numbers and card details.</li>
+      <li><b>Are there limits?</b> A row limit and a query timeout, so a heavy query can't slow your live store.</li>
+      <li><b>Is every question logged?</b> Who asked, the query that ran and how many rows it returned.</li>
+      <li><b>Who can use it?</b> Check its admin permissions, and remember that a database user sees every website, whatever an admin role's scope says.</li>
+      <li><b>Where do the database credentials live?</b> Ideally in <code>app/etc/env.php</code>, not in an admin screen anyone can open.</li>
+    </ol>
+
+    <h2>How AI Reports answers each one</h2>
+    <table>
+      <tr><th>#</th><th>AI Reports</th></tr>
+      <tr><td>1</td><td>Yes. It needs its own read-only MySQL user and refuses to run without one.</td></tr>
+      <tr><td>2</td><td>Yes. Every connection is set to read-only (<code>SET SESSION TRANSACTION READ ONLY</code>).</td></tr>
+      <tr><td>3</td><td>Yes. One <code>SELECT</code> only; comments, multiple statements, system schemas and functions such as <code>LOAD_FILE</code> or <code>SLEEP</code> are refused before anything runs.</td></tr>
+      <tr><td>4</td><td>Yes. A built-in list that can't be switched off blocks credential, token, saved-card, configuration and raw payment tables, and you can add your own. Blocked tables are also hidden from the AI.</td></tr>
+      <tr><td>5</td><td>Your store's structure (tables, attributes, store and category names, status codes), your business rules and the question. In Answer mode, also up to 20 rows per query, masked. Table + CSV mode sends no result rows.</td></tr>
+      <tr><td>6</td><td>Yes, on by default: by column name, through renamed columns, inside JSON, and by scanning values for emails, card numbers, phone numbers and IP addresses.</td></tr>
+      <tr><td>7</td><td>Yes. 1,000 rows and a 5-second database timeout by default.</td></tr>
+      <tr><td>8</td><td>Yes. An admin grid and a log file record the user, the query, rows, cost and time.</td></tr>
+      <tr><td>9</td><td>Four separate admin permissions, and the guide warns about the all-websites point.</td></tr>
+      <tr><td>10</td><td>Only in <code>app/etc/env.php</code>. Not visible or editable in the admin.</td></tr>
+    </table>
+    <p>Your AI provider's own terms apply to what it receives. If customer data must never be stored, ask your provider about zero data retention.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which enabled products have no image?”</p>
+      <p>In Table mode no result rows are sent to the AI: it only writes the query. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-ai-reporting/">AI reporting for Magento: ask your store data in plain English</a></li><li><a href="/guides/chatgpt-magento-sql/">Can ChatGPT write SQL for your Magento store?</a></li><li><a href="/guides/questions-to-ask-your-magento-data/">50 questions you can ask your Magento store data</a></li><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

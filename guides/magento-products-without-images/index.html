@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to find Magento 2 products without images (admin and SQL)</title>
+  <meta name="description" content="List every enabled Magento 2 product that has no base image, using a product export or one SQL query for Open Source and Adobe Commerce.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/magento-products-without-images/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to find Magento 2 products without images (admin and SQL)">
+  <meta property="og:description" content="List every enabled Magento 2 product that has no base image, using a product export or one SQL query for Open Source and Adobe Commerce.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/magento-products-without-images/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How to find Magento products without images", "description": "List every enabled Magento 2 product that has no base image, using a product export or one SQL query for Open Source and Adobe Commerce.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/magento-products-without-images/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › Products</p>
+    <h1>How to find Magento products without images</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> the product grid can't filter by image. Either export your products and filter the <code>base_image</code> column, or run the query below to list every enabled, visible product with no base image.</p>
+    <p>A product with no base image shows Magento's grey placeholder on the website, which costs sales. It happens a lot after imports.</p>
+
+    <h2>In the admin: export and filter</h2>
+    <ol class="checklist">
+      <li>Go to <b>System › Data Transfer › Export</b>.</li>
+      <li>Choose Entity Type <b>Products</b>, file format CSV, and click <b>Continue</b>.</li>
+      <li>The file appears in the list at the bottom of the page once your store's cron has run. Download it.</li>
+      <li>Open it in Excel or Google Sheets and filter: <code>base_image</code> is empty, <code>product_online</code> is 1, and <code>visibility</code> isn't "Not Visible Individually".</li>
+    </ol>
+    <p>That works, but on a big catalogue the export is slow, and you have to repeat it every time.</p>
+
+    <h2>With one query</h2>
+    <p>Lists enabled products that are visible on their own (so variants of configurable products are skipped) and have no base image at the default scope.</p>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>Magento Open Source</h3>
+    <pre><code>SELECT e.sku, e.type_id AS type, nm.value AS name
+FROM catalog_product_entity e
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_img  ON a_img.entity_type_id  = t.entity_type_id AND a_img.attribute_code  = &#x27;image&#x27;
+JOIN eav_attribute a_name ON a_name.entity_type_id = t.entity_type_id AND a_name.attribute_code = &#x27;name&#x27;
+JOIN eav_attribute a_st   ON a_st.entity_type_id   = t.entity_type_id AND a_st.attribute_code   = &#x27;status&#x27;
+JOIN eav_attribute a_vis  ON a_vis.entity_type_id  = t.entity_type_id AND a_vis.attribute_code  = &#x27;visibility&#x27;
+JOIN catalog_product_entity_int st  ON st.entity_id  = e.entity_id AND st.attribute_id  = a_st.attribute_id  AND st.store_id  = 0 AND st.value = 1
+JOIN catalog_product_entity_int vis ON vis.entity_id = e.entity_id AND vis.attribute_id = a_vis.attribute_id AND vis.store_id = 0 AND vis.value IN (2, 3, 4)
+LEFT JOIN catalog_product_entity_varchar img ON img.entity_id = e.entity_id AND img.attribute_id = a_img.attribute_id  AND img.store_id = 0
+LEFT JOIN catalog_product_entity_varchar nm  ON nm.entity_id  = e.entity_id AND nm.attribute_id  = a_name.attribute_id AND nm.store_id  = 0
+WHERE img.value IS NULL OR img.value IN (&#x27;&#x27;, &#x27;no_selection&#x27;)
+ORDER BY e.sku;</code></pre>
+    <h3>Adobe Commerce</h3>
+    <p>On <b>Adobe Commerce</b>, product attributes are stored per <i>version</i> (for scheduled updates) and linked by <code>row_id</code> instead of <code>entity_id</code>. Use this version there:</p>
+    <pre><code>SELECT e.sku, e.type_id AS type, nm.value AS name
+FROM catalog_product_entity e
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_img  ON a_img.entity_type_id  = t.entity_type_id AND a_img.attribute_code  = &#x27;image&#x27;
+JOIN eav_attribute a_name ON a_name.entity_type_id = t.entity_type_id AND a_name.attribute_code = &#x27;name&#x27;
+JOIN eav_attribute a_st   ON a_st.entity_type_id   = t.entity_type_id AND a_st.attribute_code   = &#x27;status&#x27;
+JOIN eav_attribute a_vis  ON a_vis.entity_type_id  = t.entity_type_id AND a_vis.attribute_code  = &#x27;visibility&#x27;
+JOIN catalog_product_entity_int st  ON st.row_id     = e.row_id AND st.attribute_id  = a_st.attribute_id  AND st.store_id  = 0 AND st.value = 1
+JOIN catalog_product_entity_int vis ON vis.row_id    = e.row_id AND vis.attribute_id = a_vis.attribute_id AND vis.store_id = 0 AND vis.value IN (2, 3, 4)
+LEFT JOIN catalog_product_entity_varchar img ON img.row_id    = e.row_id AND img.attribute_id = a_img.attribute_id  AND img.store_id = 0
+LEFT JOIN catalog_product_entity_varchar nm  ON nm.row_id     = e.row_id AND nm.attribute_id  = a_name.attribute_id AND nm.store_id  = 0
+WHERE (img.value IS NULL OR img.value IN (&#x27;&#x27;, &#x27;no_selection&#x27;))
+  AND e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()
+ORDER BY e.sku;</code></pre>
+    <p><code>no_selection</code> is what Magento stores when an image was removed. The query checks the default scope only; a store view can still have its own image.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which enabled products have no image? Show SKU and name.”</p>
+      <p>You get the list as a table you can download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

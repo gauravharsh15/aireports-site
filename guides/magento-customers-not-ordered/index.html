@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento customers who haven&#x27;t ordered in 6 months</title>
+  <meta name="description" content="List Magento 2 customers whose last order was over 6 months ago, or who never ordered, for win-back emails. Includes a subscribers-only version.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/magento-customers-not-ordered/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento customers who haven&#x27;t ordered in 6 months">
+  <meta property="og:description" content="List Magento 2 customers whose last order was over 6 months ago, or who never ordered, for win-back emails. Includes a subscribers-only version.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/magento-customers-not-ordered/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How to find Magento customers who haven't ordered in 6 months", "description": "List Magento 2 customers whose last order was over 6 months ago, or who never ordered, for win-back emails. Includes a subscribers-only version.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/magento-customers-not-ordered/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › Customers</p>
+    <h1>How to find Magento customers who haven't ordered in 6 months</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Magento has no built-in report for this. You can match a customer export against an order export in a spreadsheet, or run one query that lists each registered customer's last order date.</p>
+
+    <h2>In the admin: two exports and a spreadsheet</h2>
+    <ol class="checklist">
+      <li>Export your customers: <b>System › Data Transfer › Export</b>, Entity Type <b>Customers Main File</b>.</li>
+      <li>Export your orders: <b>Sales › Orders</b>, then <b>Export › CSV</b> at the top of the grid.</li>
+      <li>In a spreadsheet, find each customer's latest order date by email address and filter for dates more than 6 months ago.</li>
+    </ol>
+    <p>It works for a small store; with thousands of orders it gets slow.</p>
+
+    <h2>With one query</h2>
+    <p>Registered customers whose last order (not canceled) is more than 6 months old, newest first. Guest orders aren't linked to a customer account, so they're not included. The same query works on Open Source and Adobe Commerce.</p>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <pre><code>SELECT
+  c.entity_id          AS customer_id,
+  c.email,
+  c.firstname,
+  c.lastname,
+  COUNT(o.entity_id)   AS orders,
+  MAX(o.created_at)    AS last_order
+FROM customer_entity c
+JOIN sales_order o ON o.customer_id = c.entity_id AND o.state &lt;&gt; &#x27;canceled&#x27;
+GROUP BY c.entity_id, c.email, c.firstname, c.lastname
+HAVING MAX(o.created_at) &lt; NOW() - INTERVAL 6 MONTH
+ORDER BY last_order DESC;</code></pre>
+    <h3>Customers who never ordered</h3>
+    <pre><code>SELECT c.entity_id AS customer_id, c.email, c.firstname, c.lastname, c.created_at AS registered
+FROM customer_entity c
+LEFT JOIN sales_order o ON o.customer_id = c.entity_id AND o.state &lt;&gt; &#x27;canceled&#x27;
+WHERE o.entity_id IS NULL
+ORDER BY c.created_at DESC;</code></pre>
+    <h3>Only customers who agreed to marketing emails</h3>
+    <p>Before you email anyone about a win-back offer, check they agreed to it. In the UK and EU that's the law. This version keeps only customers who are subscribed to your newsletter:</p>
+    <pre><code>SELECT
+  c.entity_id          AS customer_id,
+  c.email,
+  c.firstname,
+  c.lastname,
+  COUNT(o.entity_id)   AS orders,
+  MAX(o.created_at)    AS last_order
+FROM customer_entity c
+JOIN sales_order o ON o.customer_id = c.entity_id AND o.state &lt;&gt; &#x27;canceled&#x27;
+JOIN newsletter_subscriber ns ON ns.customer_id = c.entity_id AND ns.subscriber_status = 1   -- 1 = subscribed
+GROUP BY c.entity_id, c.email, c.firstname, c.lastname
+HAVING MAX(o.created_at) &lt; NOW() - INTERVAL 6 MONTH
+ORDER BY last_order DESC;</code></pre>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Customers whose last order was more than 6 months ago, with email and last order date”</p>
+      <p>You get the list, ready to download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

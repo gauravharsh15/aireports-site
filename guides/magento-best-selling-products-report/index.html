@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 best-selling products report: admin and SQL</title>
+  <meta name="description" content="See your best-selling Magento 2 products for any date range: the built-in Bestsellers report, its catch, and a SQL query with quantity, orders and revenue.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/magento-best-selling-products-report/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 best-selling products report: admin and SQL">
+  <meta property="og:description" content="See your best-selling Magento 2 products for any date range: the built-in Bestsellers report, its catch, and a SQL query with quantity, orders and revenue.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/magento-best-selling-products-report/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How to see your best-selling products in Magento", "description": "See your best-selling Magento 2 products for any date range: the built-in Bestsellers report, its catch, and a SQL query with quantity, orders and revenue.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/magento-best-selling-products-report/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › Sales</p>
+    <h1>How to see your best-selling products in Magento</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> use <b>Reports › Products › Bestsellers</b>, but refresh its statistics first or it shows old numbers. For revenue, a custom date range or a list you can sort, use the query below.</p>
+
+    <h2>In the admin: the Bestsellers report</h2>
+    <ol class="checklist">
+      <li>Go to <b>Reports › Statistics › Refresh Statistics</b>, tick <b>Bestsellers</b>, and choose <b>Refresh Lifetime Statistics</b> from the Actions menu. The report is only as fresh as this refresh.</li>
+      <li>Go to <b>Reports › Products › Bestsellers</b>, choose the period and the dates, and click <b>Show Report</b>.</li>
+    </ol>
+    <p>The catch: it shows quantity, not revenue or number of orders, and it's easy to forget the refresh.</p>
+
+    <h2>With one query</h2>
+    <p>Top 20 products by quantity sold between two dates, with the number of orders and revenue. Canceled and fully refunded orders are left out. A configurable product is counted once, under its own SKU, whichever variant was bought. The query is the same for Open Source and Adobe Commerce.</p>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <pre><code>SET @from = &#x27;2026-10-01&#x27;;   -- first day (inclusive)
+SET @to   = &#x27;2026-11-01&#x27;;   -- day after the last day (exclusive)
+
+SELECT
+  (SELECT p.sku FROM catalog_product_entity p WHERE p.entity_id = i.product_id LIMIT 1) AS sku,
+  MAX(i.name)                     AS name,
+  SUM(i.qty_ordered)              AS qty_sold,
+  COUNT(DISTINCT i.order_id)      AS orders,
+  ROUND(SUM(i.base_row_total), 2) AS revenue_before_discounts
+FROM sales_order_item i
+JOIN sales_order o ON o.entity_id = i.order_id
+WHERE o.created_at &gt;= @from AND o.created_at &lt; @to
+  AND o.state NOT IN (&#x27;canceled&#x27;, &#x27;closed&#x27;)   -- closed = fully refunded
+  AND i.parent_item_id IS NULL
+GROUP BY i.product_id
+ORDER BY qty_sold DESC
+LIMIT 20;</code></pre>
+    <p>Two things to know: order dates are stored in <b>UTC</b>, so a day near midnight can shift for your time zone, and revenue is before discounts, without tax, in your base currency.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Top 20 best-selling products last month, with quantity, orders and revenue”</p>
+      <p>It knows your store's time zone and order statuses, and you can save the result as a report and re-run it any time at no AI cost. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

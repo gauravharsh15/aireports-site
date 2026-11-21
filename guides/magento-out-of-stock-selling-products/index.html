@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento restock list: out-of-stock products still selling</title>
+  <meta name="description" content="Build a Magento 2 restock list: products that are out of stock now but sold in the last 30 days, sorted by how many sold. Admin steps and one SQL query.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/magento-out-of-stock-selling-products/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento restock list: out-of-stock products still selling">
+  <meta property="og:description" content="Build a Magento 2 restock list: products that are out of stock now but sold in the last 30 days, sorted by how many sold. Admin steps and one SQL query.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/magento-out-of-stock-selling-products/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How to find out-of-stock products that are still selling", "description": "Build a Magento 2 restock list: products that are out of stock now but sold in the last 30 days, sorted by how many sold. Admin steps and one SQL query.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/magento-out-of-stock-selling-products/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › Stock</p>
+    <h1>How to find out-of-stock products that are still selling</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> combine two lists, products that are out of stock and products that sold recently. In the admin that means two screens and a spreadsheet; the query below gives you one restock list, sorted by how many sold.</p>
+
+    <h2>In the admin</h2>
+    <ol class="checklist">
+      <li>Go to <b>Catalog › Products</b>, open <b>Filters</b>, and set Quantity from 0 to 0. Add the <i>Salable Quantity</i> column if you use several sources.</li>
+      <li>Go to <b>Reports › Products › Ordered</b> and choose the last 30 days.</li>
+      <li>Match the two lists by product name or SKU in a spreadsheet.</li>
+    </ol>
+
+    <h2>With one query</h2>
+    <p>Products that are out of stock now and sold in the last 30 days (canceled and refunded orders left out), most sold first. For configurable products it lists the exact variant that sold, such as a size and colour, because that's what you restock. The same query works on Open Source and Adobe Commerce.</p>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <pre><code>SELECT
+  i.sku,
+  MAX(i.name)          AS name,
+  si.qty               AS stock_qty,
+  SUM(i.qty_ordered)   AS sold_last_30_days
+FROM sales_order_item i
+JOIN sales_order o ON o.entity_id = i.order_id AND o.state NOT IN (&#x27;canceled&#x27;, &#x27;closed&#x27;)
+JOIN cataloginventory_stock_item si ON si.product_id = i.product_id AND si.stock_id = 1
+WHERE o.created_at &gt;= NOW() - INTERVAL 30 DAY
+  AND i.product_type IN (&#x27;simple&#x27;, &#x27;virtual&#x27;)
+  AND si.is_in_stock = 0
+GROUP BY i.sku, si.qty
+ORDER BY sold_last_30_days DESC;</code></pre>
+    <p>It reads the default stock. If you use several stock sources (Multi-Source Inventory), check each source's quantity under the product's <b>Sources</b> section before you reorder.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Products that are out of stock but sold in the last 30 days, with SKU, name and quantity sold”</p>
+      <p>You get the restock list as a table, and you can save it as a report to re-run every week at no AI cost. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-product-not-showing/">Why is my Magento product not showing on the website?</a></li><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

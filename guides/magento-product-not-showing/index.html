@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento product not showing on frontend? 9-point checklist</title>
+  <meta name="description" content="Magento product saved but not on your store? Check status, visibility, website, stock, category, price, indexers and cache, plus one query that checks most.">
+  <link rel="canonical" href="https://gauravextensions.com/guides/magento-product-not-showing/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento product not showing on frontend? 9-point checklist">
+  <meta property="og:description" content="Magento product saved but not on your store? Check status, visibility, website, stock, category, price, indexers and cache, plus one query that checks most.">
+  <meta property="og:url" content="https://gauravextensions.com/guides/magento-product-not-showing/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why is my Magento product not showing on the website?", "description": "Magento product saved but not on your store? Check status, visibility, website, stock, category, price, indexers and cache, plus one query that checks most.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/guides/magento-product-not-showing/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="brand-mark">AI</span>AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides/">Guides</a> › Products</p>
+    <h1>Why is my Magento product not showing on the website?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> a Magento 2 product only shows when, for that store view, it's <b>enabled</b>, <b>visible</b>, <b>assigned to the website</b>, <b>in stock</b>, in a <b>category</b> (for category pages), <b>indexed with a price</b>, and the <b>cache</b> has been refreshed. One failing check is enough to hide it.</p>
+
+    <h2>The checklist, in the admin</h2>
+    <p>Open <b>Catalog › Products</b>, open the product, and switch the <b>Scope</b> (top left) to the store view where it's missing. Values can be different per store view, which is the most common surprise.</p>
+    <ol class="checklist">
+      <li><b>Enable Product = Yes.</b> Check it at store view scope too: a store view can override the default and disable the product only there.</li>
+      <li><b>Visibility.</b> "Catalog, Search" shows it everywhere. "Catalog" means category pages only, "Search" means search results only. "Not Visible Individually" hides it on its own; that's normal for the variants of a configurable product.</li>
+      <li><b>Product in Websites.</b> The website that the store view belongs to must be ticked.</li>
+      <li><b>Stock.</b> Quantity above 0 and Stock Status "In Stock". If you use several sources, check the <i>Salable Quantity</i> column on the product grid. Out-of-stock products are hidden unless <b>Stores › Configuration › Catalog › Inventory › Stock Options › Display Out of Stock Products</b> is Yes.</li>
+      <li><b>Categories.</b> Needed to appear on a category page (not for search or the product's own URL). The category itself must be enabled.</li>
+      <li><b>Configurable products:</b> at least one variant must be enabled, in stock and assigned to the same website.</li>
+      <li><b>Price.</b> Category pages only list products that have a price in the price index for that website. A missing price, or a price index that hasn't run, hides the product.</li>
+      <li><b>Indexers.</b> Run <code>bin/magento indexer:status</code>. "Reindex required", or a growing backlog in "Update by Schedule" mode, means your changes haven't reached the storefront yet. Check that cron is running.</li>
+      <li><b>Cache.</b> Flush it under <b>System › Cache Management</b>, and in Varnish or your CDN if you use one.</li>
+    </ol>
+    <p><b>Adobe Commerce only:</b> B2B shared catalogs and category permissions can hide products from some customer groups, and a scheduled update can change a product's status at a set time.</p>
+
+    <h2>Check most of it at once, with one query</h2>
+    <p>For you or your developer. Change the SKU and the store view code (find it under <b>Stores › All Stores</b>), then run it.</p>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>Magento Open Source</h3>
+    <pre><code>SET @sku   = &#x27;ABC-123&#x27;;   -- the product&#x27;s SKU
+SET @store = &#x27;default&#x27;;   -- the store view code (Stores &gt; All Stores)
+
+SELECT
+  e.sku,
+  e.type_id                                  AS type,
+  COALESCE(st_store.value, st_def.value)     AS status,
+  COALESCE(vis_store.value, vis_def.value)   AS visibility,
+  EXISTS (SELECT 1 FROM catalog_product_website w
+          WHERE w.product_id = e.entity_id AND w.website_id = s.website_id) AS in_website,
+  (SELECT COUNT(*) FROM catalog_category_product c
+   WHERE c.product_id = e.entity_id)          AS categories,
+  si.is_in_stock                             AS in_stock,
+  si.qty,
+  EXISTS (SELECT 1 FROM catalog_product_index_price p
+          WHERE p.entity_id = e.entity_id AND p.website_id = s.website_id) AS has_price_index
+FROM catalog_product_entity e
+JOIN store s ON s.code = @store
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_st  ON a_st.entity_type_id  = t.entity_type_id AND a_st.attribute_code  = &#x27;status&#x27;
+JOIN eav_attribute a_vis ON a_vis.entity_type_id = t.entity_type_id AND a_vis.attribute_code = &#x27;visibility&#x27;
+LEFT JOIN catalog_product_entity_int st_def    ON st_def.entity_id    = e.entity_id AND st_def.attribute_id    = a_st.attribute_id  AND st_def.store_id    = 0
+LEFT JOIN catalog_product_entity_int st_store  ON st_store.entity_id  = e.entity_id AND st_store.attribute_id  = a_st.attribute_id  AND st_store.store_id  = s.store_id
+LEFT JOIN catalog_product_entity_int vis_def   ON vis_def.entity_id   = e.entity_id AND vis_def.attribute_id   = a_vis.attribute_id AND vis_def.store_id   = 0
+LEFT JOIN catalog_product_entity_int vis_store ON vis_store.entity_id = e.entity_id AND vis_store.attribute_id = a_vis.attribute_id AND vis_store.store_id = s.store_id
+LEFT JOIN cataloginventory_stock_item si ON si.product_id = e.entity_id AND si.stock_id = 1
+WHERE e.sku = @sku;</code></pre>
+    <h3>Adobe Commerce</h3>
+    <p>On <b>Adobe Commerce</b>, product attributes are stored per <i>version</i> (for scheduled updates) and linked by <code>row_id</code> instead of <code>entity_id</code>. Use this version there:</p>
+    <pre><code>SET @sku   = &#x27;ABC-123&#x27;;   -- the product&#x27;s SKU
+SET @store = &#x27;default&#x27;;   -- the store view code (Stores &gt; All Stores)
+
+SELECT
+  e.sku,
+  e.type_id                                  AS type,
+  COALESCE(st_store.value, st_def.value)     AS status,
+  COALESCE(vis_store.value, vis_def.value)   AS visibility,
+  EXISTS (SELECT 1 FROM catalog_product_website w
+          WHERE w.product_id = e.entity_id AND w.website_id = s.website_id) AS in_website,
+  (SELECT COUNT(*) FROM catalog_category_product c
+   WHERE c.product_id = e.entity_id)          AS categories,
+  si.is_in_stock                             AS in_stock,
+  si.qty,
+  EXISTS (SELECT 1 FROM catalog_product_index_price p
+          WHERE p.entity_id = e.entity_id AND p.website_id = s.website_id) AS has_price_index
+FROM catalog_product_entity e
+JOIN store s ON s.code = @store
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_st  ON a_st.entity_type_id  = t.entity_type_id AND a_st.attribute_code  = &#x27;status&#x27;
+JOIN eav_attribute a_vis ON a_vis.entity_type_id = t.entity_type_id AND a_vis.attribute_code = &#x27;visibility&#x27;
+LEFT JOIN catalog_product_entity_int st_def    ON st_def.row_id       = e.row_id AND st_def.attribute_id    = a_st.attribute_id  AND st_def.store_id    = 0
+LEFT JOIN catalog_product_entity_int st_store  ON st_store.row_id     = e.row_id AND st_store.attribute_id  = a_st.attribute_id  AND st_store.store_id  = s.store_id
+LEFT JOIN catalog_product_entity_int vis_def   ON vis_def.row_id      = e.row_id AND vis_def.attribute_id   = a_vis.attribute_id AND vis_def.store_id   = 0
+LEFT JOIN catalog_product_entity_int vis_store ON vis_store.row_id    = e.row_id AND vis_store.attribute_id = a_vis.attribute_id AND vis_store.store_id = s.store_id
+LEFT JOIN cataloginventory_stock_item si ON si.product_id = e.entity_id AND si.stock_id = 1
+WHERE e.sku = @sku
+  AND e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP();  -- the current version of the product</code></pre>
+
+    <h3>How to read the result</h3>
+    <table>
+      <tr><th>Column</th><th>What you want to see</th></tr>
+      <tr><td><code>status</code></td><td><b>1</b> (enabled). 2 means disabled, either everywhere or just in this store view.</td></tr>
+      <tr><td><code>visibility</code></td><td><b>4</b> (Catalog, Search), 2 (Catalog) or 3 (Search). 1 means Not Visible Individually.</td></tr>
+      <tr><td><code>in_website</code></td><td><b>1</b>. 0 means the product isn't assigned to this store's website.</td></tr>
+      <tr><td><code>categories</code></td><td><b>1 or more</b>, if it should be on a category page.</td></tr>
+      <tr><td><code>in_stock</code></td><td><b>1</b>, unless "Display Out of Stock Products" is on. For a configurable product, <code>qty</code> is 0 and that's normal: the stock is on its variants.</td></tr>
+      <tr><td><code>has_price_index</code></td><td><b>1</b>. 0 means it won't appear on category pages: check the price and reindex.</td></tr>
+    </table>
+    <p>If every column looks right, the cause is usually the indexers, the cache, or (on Adobe Commerce) customer-group permissions.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Why is SKU ABC-123 not showing in the Default Store View?”</p>
+      <p>It checks status, visibility, website, stock and categories for that store view and tells you what's blocking the product. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>More guides</h2>
+    <ul class="related"><li><a href="/guides/magento-products-without-images/">How to find Magento products without images</a></li><li><a href="/guides/magento-best-selling-products-report/">How to see your best-selling products in Magento</a></li><li><a href="/guides/magento-customers-not-ordered/">How to find Magento customers who haven&#x27;t ordered in 6 months</a></li><li><a href="/guides/magento-out-of-stock-selling-products/">How to find out-of-stock products that are still selling</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

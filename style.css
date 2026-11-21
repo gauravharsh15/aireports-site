@@ -411,3 +411,28 @@ details p { color: var(--text-2); margin: 0 0 22px; max-width: 46em; }
 .assure-item svg { flex: 0 0 22px; width: 22px; height: 22px; color: var(--ok); margin-top: 2px; }
 .assure-item b { display: block; font-size: 15.5px; margin-bottom: 2px; }
 .assure-item span { color: var(--text-2); font-size: 14.5px; }
+
+/* ---- guides ------------------------------------------------------------ */
+.guide h1 { font-size: clamp(30px, 4vw, 44px); }
+.crumbs { font-size: 14px; color: var(--text-3); margin: 0 0 10px; }
+.crumbs a { color: var(--text-3); }
+.byline { font-size: 14.5px; color: var(--text-3); margin: -4px 0 26px; }
+.answer { font-size: 17px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.prose .answer { color: var(--text); }
+.checklist li { margin: 10px 0; }
+.guide pre { font-size: 13px; }
+.shortcut { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 14px; padding: 20px 22px 6px; margin: 40px 0; }
+.shortcut-kicker { font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin: 0 0 6px; }
+.prose .shortcut-q { color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-weight: 500; }
+.shortcut .btn-primary { color: #fff; }
+.shortcut .btn-primary:hover { color: #fff; text-decoration: none; }
+.related { padding-left: 20px; }
+.related li { margin: 6px 0; }
+.author { display: flex; gap: 14px; align-items: flex-start; border-top: 1px solid var(--border); padding-top: 22px; margin-top: 44px; }
+.author img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex: 0 0 56px; }
+.prose .author p { margin: 0; font-size: 15px; }
+.lead-left { font-size: 18px; color: var(--text-2); max-width: 40em; }
+.guide-list { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 12px; }
+.guide-list li { margin: 0; }
+.guide-list a { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; color: var(--text); }
+.guide-list a:hover { border-color: var(--accent); text-decoration: none; }

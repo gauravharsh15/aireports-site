@@ -452,3 +452,13 @@ details p { color: var(--text-2); margin: 0 0 22px; max-width: 46em; }
 .release-date { font-size: 16px; font-weight: 500; color: var(--text-3); letter-spacing: 0; margin-left: 10px; }
 .prose .release-title { color: var(--text); font-weight: 600; margin: 0 0 6px; }
 .prose section.release { padding: 0; }
+.ug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 28px 0 8px; }
+.ug-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px 8px; }
+.prose .ug-card h2 { font-size: 19px; margin: 0 0 4px; }
+.prose .ug-card p { margin: 0 0 8px; }
+.ug-card ol { margin: 0 0 10px; }
+.ug-pages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 24px; }
+.ug-pages figure { margin: 0; }
+.ug-pages img { width: 100%; height: auto; display: block; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.ug-pages figcaption { font-size: 13.5px; color: var(--text-3); margin-top: 6px; text-align: center; }
+@media (max-width: 720px) { .ug-grid, .ug-pages { grid-template-columns: 1fr; } }

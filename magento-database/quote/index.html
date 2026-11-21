@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 quote table: columns and examples</title>
+  <meta name="description" content="The Magento 2 quote table holds shopping carts. What is_active means, how carts become orders, and how to find active carts.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/quote/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 quote table: columns and examples">
+  <meta property="og:description" content="The Magento 2 quote table holds shopping carts. What is_active means, how carts become orders, and how to find active carts.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/quote/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 quote table", "description": "The Magento 2 quote table holds shopping carts. What is_active means, how carts become orders, and how to find active carts.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/quote/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Carts</p>
+    <h1>Magento 2 <code>quote</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">Shopping carts. Every cart, from guests and logged-in customers, is a row here, whether or not it became an order.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>entity_id</code></td><td>Internal cart ID. Orders keep it in <code>sales_order.quote_id</code>.</td></tr><tr><td><code>store_id</code></td><td>The store view of the cart.</td></tr><tr><td><code>customer_id / customer_email</code></td><td>The customer, or NULL for guests until they enter an email.</td></tr><tr><td><code>is_active</code></td><td><code>1</code> = still a cart. <code>0</code> = turned into an order or replaced.</td></tr><tr><td><code>items_count / items_qty</code></td><td>Number of product lines and total quantity.</td></tr><tr><td><code>base_grand_total</code></td><td>Cart total in your base currency.</td></tr><tr><td><code>reserved_order_id</code></td><td>The order number reserved for it at checkout.</td></tr><tr><td><code>created_at / updated_at</code></td><td>When the cart was created and last changed.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>Old carts are deleted by cron after the <b>Quote Lifetime (days)</b> setting (<b>Stores › Configuration › Sales › Checkout › Shopping Cart</b>, 30 days by default).</li><li>Abandoned carts are usually active carts with items that haven't been updated for a while.</li></ul>
+
+    <h2>Example: Active carts with items in the last 7 days, and their value</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT COUNT(*) AS carts, ROUND(SUM(base_grand_total), 2) AS value
+FROM quote
+WHERE is_active = 1
+  AND items_count &gt; 0
+  AND updated_at &gt;= NOW() - INTERVAL 7 DAY;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How many active carts with items were updated in the last 7 days, and what&#x27;s their total value?”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>Extra columns on Adobe Commerce</h2>
+    <p>Adobe Commerce has 84 columns here instead of 51. The extra ones come from these Commerce features:</p>
+    <ul><li><b>Customer Balance:</b> <code>customer_balance_amount_used</code>, <code>base_customer_bal_amount_used</code>, <code>use_customer_balance</code></li><li><b>Gift Card Account:</b> <code>gift_cards</code>, <code>gift_cards_amount</code>, <code>base_gift_cards_amount</code>, <code>gift_cards_amount_used</code>, <code>base_gift_cards_amount_used</code></li><li><b>Gift Wrapping:</b> <code>gw_id</code>, <code>gw_allow_gift_receipt</code>, <code>gw_add_card</code>, <code>gw_base_price</code>, <code>gw_price</code>, <code>gw_items_base_price</code>, <code>gw_items_price</code>, <code>gw_card_base_price</code>, <code>gw_card_price</code>, <code>gw_base_tax_amount</code>, <code>gw_tax_amount</code>, <code>gw_items_base_tax_amount</code>, <code>gw_items_tax_amount</code>, <code>gw_card_base_tax_amount</code>, <code>gw_card_tax_amount</code>, <code>gw_base_price_incl_tax</code>, <code>gw_price_incl_tax</code>, <code>gw_items_base_price_incl_tax</code>, <code>gw_items_price_incl_tax</code>, <code>gw_card_base_price_incl_tax</code>, <code>gw_card_price_incl_tax</code></li><li><b>Reward:</b> <code>use_reward_points</code>, <code>reward_points_balance</code>, <code>base_reward_currency_amount</code>, <code>reward_currency_amount</code></li></ul>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>store_id</code> → <code>store.store_id</code></li></ul>
+
+    <h2>All 51 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>entity_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Entity ID</td></tr><tr><td><code>store_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Store ID</td></tr><tr><td><code>created_at</code></td><td><code>timestamp</code></td><td></td><td>Created At</td></tr><tr><td><code>updated_at</code></td><td><code>timestamp</code></td><td></td><td></td></tr><tr><td><code>converted_at</code></td><td><code>timestamp</code></td><td>yes</td><td>Converted At</td></tr><tr><td><code>is_active</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Active</td></tr><tr><td><code>is_virtual</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Virtual</td></tr><tr><td><code>is_multi_shipping</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Multi Shipping</td></tr><tr><td><code>items_count</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Items Count</td></tr><tr><td><code>items_qty</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Items Qty</td></tr><tr><td><code>orig_order_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Orig Order ID</td></tr><tr><td><code>store_to_base_rate</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Store To Base Rate</td></tr><tr><td><code>store_to_quote_rate</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Store To Quote Rate</td></tr><tr><td><code>base_currency_code</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Base Currency Code</td></tr><tr><td><code>store_currency_code</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Store Currency Code</td></tr><tr><td><code>quote_currency_code</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Quote Currency Code</td></tr><tr><td><code>grand_total</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Grand Total</td></tr><tr><td><code>base_grand_total</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Grand Total</td></tr><tr><td><code>checkout_method</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Checkout Method</td></tr><tr><td><code>customer_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Customer ID</td></tr><tr><td><code>customer_tax_class_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Customer Tax Class ID</td></tr><tr><td><code>customer_group_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Customer Group ID</td></tr><tr><td><code>customer_email</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Customer Email</td></tr><tr><td><code>customer_prefix</code></td><td><code>varchar(40)</code></td><td>yes</td><td>Customer Prefix</td></tr><tr><td><code>customer_firstname</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Customer Firstname</td></tr><tr><td><code>customer_middlename</code></td><td><code>varchar(40)</code></td><td>yes</td><td>Customer Middlename</td></tr><tr><td><code>customer_lastname</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Customer Lastname</td></tr><tr><td><code>customer_suffix</code></td><td><code>varchar(40)</code></td><td>yes</td><td>Customer Suffix</td></tr><tr><td><code>customer_dob</code></td><td><code>datetime</code></td><td>yes</td><td>Customer Dob</td></tr><tr><td><code>customer_note</code></td><td><code>text</code></td><td>yes</td><td>Customer Note</td></tr><tr><td><code>customer_note_notify</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Customer Note Notify</td></tr><tr><td><code>customer_is_guest</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Customer Is Guest</td></tr><tr><td><code>remote_ip</code></td><td><code>varchar(45)</code></td><td>yes</td><td>Remote Ip</td></tr><tr><td><code>applied_rule_ids</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Applied Rule Ids</td></tr><tr><td><code>reserved_order_id</code></td><td><code>varchar(64)</code></td><td>yes</td><td>Reserved Order ID</td></tr><tr><td><code>password_hash</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Password Hash</td></tr><tr><td><code>coupon_code</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Coupon Code</td></tr><tr><td><code>global_currency_code</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Global Currency Code</td></tr><tr><td><code>base_to_global_rate</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base To Global Rate</td></tr><tr><td><code>base_to_quote_rate</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base To Quote Rate</td></tr><tr><td><code>customer_taxvat</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Customer Taxvat</td></tr><tr><td><code>customer_gender</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Customer Gender</td></tr><tr><td><code>subtotal</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Subtotal</td></tr><tr><td><code>base_subtotal</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Subtotal</td></tr><tr><td><code>subtotal_with_discount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Subtotal With Discount</td></tr><tr><td><code>base_subtotal_with_discount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Subtotal With Discount</td></tr><tr><td><code>is_changed</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Is Changed</td></tr><tr><td><code>trigger_recollect</code></td><td><code>smallint(6)</code></td><td></td><td>Trigger Recollect</td></tr><tr><td><code>ext_shipping_info</code></td><td><code>text</code></td><td>yes</td><td>Ext Shipping Info</td></tr><tr><td><code>gift_message_id</code></td><td><code>int(11)</code></td><td>yes</td><td>Gift Message ID</td></tr><tr><td><code>is_persistent</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Quote Persistent</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/quote-item/">quote_item</a></li><li><a href="/magento-database/sales-order/">sales_order</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

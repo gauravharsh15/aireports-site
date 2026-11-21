@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 database reference: tables explained</title>
+  <meta name="description" content="Plain-English reference for the Magento 2 tables you query most: orders, carts, customers, products, stock, URLs and settings, with tested queries.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 database reference: tables explained">
+  <meta property="og:description" content="Plain-English reference for the Magento 2 tables you query most: orders, carts, customers, products, stock, URLs and settings, with tested queries.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › Database reference</p>
+    <h1>Magento 2 database reference</h1>
+    <p class="lead-left">The Magento tables you'll query most, explained in plain English: what each one stores, the columns that matter, the traps, and a tested example query. Every column list comes from a real Magento 2.4.8 database, with the Adobe Commerce differences marked.</p>
+    <h2>Orders and sales</h2>
+    <ul class="guide-list ref-list"><li><a href="/magento-database/sales-order/"><b>sales_order</b><span>One row per order: its number, state and status, customer, store view, totals and currencies. Every other sales table points back to it.</span></a></li><li><a href="/magento-database/sales-order-item/"><b>sales_order_item</b><span>One row per product line in an order. Configurable and bundle products have a parent row plus child rows, so the same sale can appear twice.</span></a></li><li><a href="/magento-database/sales-order-address/"><b>sales_order_address</b><span>The billing and shipping address of each order, copied at checkout, so later changes to a customer's address book don't change past orders.</span></a></li><li><a href="/magento-database/sales-order-payment/"><b>sales_order_payment</b><span>The payment of each order: the method used, amounts authorised, paid and refunded, and the gateway's references.</span></a></li><li><a href="/magento-database/sales-order-grid/"><b>sales_order_grid</b><span>A flattened copy of each order that powers Sales › Orders in the admin. It's built from sales_order and its addresses and payment.</span></a></li><li><a href="/magento-database/sales-invoice/"><b>sales_invoice</b><span>One row per invoice. An order can have several invoices if it was invoiced in parts.</span></a></li></ul>
+    <h2>Carts</h2>
+    <ul class="guide-list ref-list"><li><a href="/magento-database/quote/"><b>quote</b><span>Shopping carts. Every cart, from guests and logged-in customers, is a row here, whether or not it became an order.</span></a></li><li><a href="/magento-database/quote-item/"><b>quote_item</b><span>The products in each cart. Like order items, configurable and bundle products have a parent row plus child rows.</span></a></li></ul>
+    <h2>Customers</h2>
+    <ul class="guide-list ref-list"><li><a href="/magento-database/customer-entity/"><b>customer_entity</b><span>One row per registered customer account. Guest shoppers aren't here; their details live only on their orders.</span></a></li><li><a href="/magento-database/customer-address-entity/"><b>customer_address_entity</b><span>Customers' saved address book entries. A customer can have many; their defaults are chosen on customer_entity.</span></a></li></ul>
+    <h2>Products and attributes</h2>
+    <ul class="guide-list ref-list"><li><a href="/magento-database/catalog-product-entity/"><b>catalog_product_entity</b><span>One row per product (per version on Adobe Commerce). It has only a few fixed columns; names, prices and everything else are in attribute value tables.</span></a></li><li><a href="/magento-database/catalog-product-entity-int/"><b>catalog_product_entity_int</b><span>Whole-number product values: status, visibility, tax class, and every dropdown attribute (where the value is the option ID). One row per product, attribute and store view.</span></a></li><li><a href="/magento-database/catalog-product-entity-varchar/"><b>catalog_product_entity_varchar</b><span>Short text product values (up to 255 characters): name, URL key, image paths, meta title and other text attributes. One row per product, attribute and store view.</span></a></li><li><a href="/magento-database/catalog-product-entity-decimal/"><b>catalog_product_entity_decimal</b><span>Decimal product values: price, special_price, cost, weight and other decimal attributes.</span></a></li><li><a href="/magento-database/eav-attribute/"><b>eav_attribute</b><span>The definition of every attribute of products, categories, customers and addresses: its code, label, input type and which value table holds its data.</span></a></li></ul>
+    <h2>Categories and stock</h2>
+    <ul class="guide-list ref-list"><li><a href="/magento-database/catalog-category-product/"><b>catalog_category_product</b><span>Which products are in which categories, and their position in each.</span></a></li><li><a href="/magento-database/cataloginventory-stock-item/"><b>cataloginventory_stock_item</b><span>Stock settings and quantity per product for the default stock. With Multi-Source Inventory (MSI), Magento keeps it in sync with the default source.</span></a></li><li><a href="/magento-database/inventory-source-item/"><b>inventory_source_item</b><span>Multi-Source Inventory: the quantity and stock status of each SKU in each source (warehouse or shop).</span></a></li></ul>
+    <h2>URLs and configuration</h2>
+    <ul class="guide-list ref-list"><li><a href="/magento-database/url-rewrite/"><b>url_rewrite</b><span>Every search-engine-friendly URL on the storefront and what it points to: products, categories, CMS pages and custom redirects.</span></a></li><li><a href="/magento-database/core-config-data/"><b>core_config_data</b><span>Every setting changed under Stores › Configuration, per scope.</span></a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

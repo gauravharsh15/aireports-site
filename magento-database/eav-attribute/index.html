@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 eav_attribute table: columns and examples</title>
+  <meta name="description" content="The Magento 2 eav_attribute table defines every attribute: code, label, type and which value table it uses. With a query for custom attributes.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/eav-attribute/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 eav_attribute table: columns and examples">
+  <meta property="og:description" content="The Magento 2 eav_attribute table defines every attribute: code, label, type and which value table it uses. With a query for custom attributes.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/eav-attribute/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 eav_attribute table", "description": "The Magento 2 eav_attribute table defines every attribute: code, label, type and which value table it uses. With a query for custom attributes.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/eav-attribute/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Products and attributes</p>
+    <h1>Magento 2 <code>eav_attribute</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">The definition of every attribute of products, categories, customers and addresses: its code, label, input type and which value table holds its data.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>attribute_id</code></td><td>Attribute ID, used in all the value tables.</td></tr><tr><td><code>entity_type_id</code></td><td>What it belongs to, linking to <code>eav_entity_type</code> (<code>catalog_product</code>, <code>catalog_category</code>, <code>customer</code>, <code>customer_address</code>).</td></tr><tr><td><code>attribute_code</code></td><td>The code, such as <code>name</code>, <code>status</code> or <code>color</code>.</td></tr><tr><td><code>frontend_label</code></td><td>The default label.</td></tr><tr><td><code>backend_type</code></td><td>Which value table it uses: <code>int</code>, <code>varchar</code>, <code>decimal</code>, <code>text</code>, <code>datetime</code>, or <code>static</code> (a column on the main table).</td></tr><tr><td><code>frontend_input</code></td><td>The input type: <code>select</code>, <code>multiselect</code>, <code>text</code>, <code>boolean</code>, <code>price</code> and so on.</td></tr><tr><td><code>is_user_defined</code></td><td><code>1</code> = created in the admin or by an extension, not by Magento core.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>Product-only settings, such as whether an attribute is used as a filter, are in <code>catalog_eav_attribute</code>.</li></ul>
+
+    <h2>Example: Your own product attributes (created in the admin or by extensions)</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT a.attribute_code, a.frontend_label, a.backend_type, a.frontend_input
+FROM eav_attribute a
+JOIN eav_entity_type t ON t.entity_type_id = a.entity_type_id AND t.entity_type_code = &#x27;catalog_product&#x27;
+WHERE a.is_user_defined = 1
+ORDER BY a.attribute_code;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which product attributes do we have, and which are used as filters?”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <p class="callout">This table has the same 17 columns on Magento Open Source and Adobe Commerce.</p>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>entity_type_id</code> → <code>eav_entity_type.entity_type_id</code></li></ul>
+
+    <h2>All 17 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>attribute_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Attribute ID</td></tr><tr><td><code>entity_type_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Entity Type ID</td></tr><tr><td><code>attribute_code</code></td><td><code>varchar(255)</code></td><td></td><td>Attribute Code</td></tr><tr><td><code>attribute_model</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Attribute Model</td></tr><tr><td><code>backend_model</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Backend Model</td></tr><tr><td><code>backend_type</code></td><td><code>varchar(8)</code></td><td></td><td>Backend Type</td></tr><tr><td><code>backend_table</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Backend Table</td></tr><tr><td><code>frontend_model</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Frontend Model</td></tr><tr><td><code>frontend_input</code></td><td><code>varchar(50)</code></td><td>yes</td><td>Frontend Input</td></tr><tr><td><code>frontend_label</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Frontend Label</td></tr><tr><td><code>frontend_class</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Frontend Class</td></tr><tr><td><code>source_model</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Source Model</td></tr><tr><td><code>is_required</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Defines Is Required</td></tr><tr><td><code>is_user_defined</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Defines Is User Defined</td></tr><tr><td><code>default_value</code></td><td><code>text</code></td><td>yes</td><td>Default Value</td></tr><tr><td><code>is_unique</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Defines Is Unique</td></tr><tr><td><code>note</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Note</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/catalog-product-entity-int/">catalog_product_entity_int</a></li><li><a href="/magento-database/catalog-product-entity-varchar/">catalog_product_entity_varchar</a></li><li><a href="/magento-database/catalog-product-entity-decimal/">catalog_product_entity_decimal</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

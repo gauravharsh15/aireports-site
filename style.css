@@ -441,3 +441,8 @@ details p { color: var(--text-2); margin: 0 0 22px; max-width: 46em; }
 .qlist li { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 10px 14px; margin: 0; border-bottom: 1px solid var(--border); color: var(--text); }
 .qlist li:last-child { border-bottom: 0; }
 .qtag { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 2px 9px; }
+.dbref h1 code { font-size: .86em; background: none; padding: 0; }
+.ref-list a span { display: block; font-weight: 400; font-size: 14.5px; color: var(--text-2); margin-top: 4px; }
+.allcols summary { cursor: pointer; color: var(--accent); font-weight: 600; margin: 6px 0 10px; }
+.allcols table { font-size: 13.5px; }
+.prose .caption-note { font-size: 14px; color: var(--text-3); }

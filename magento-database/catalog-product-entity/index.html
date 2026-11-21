@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 catalog_product_entity table: columns and examples</title>
+  <meta name="description" content="The Magento 2 catalog_product_entity table: why it has no name or price column, product types, and the row_id difference on Adobe Commerce.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/catalog-product-entity/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 catalog_product_entity table: columns and examples">
+  <meta property="og:description" content="The Magento 2 catalog_product_entity table: why it has no name or price column, product types, and the row_id difference on Adobe Commerce.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/catalog-product-entity/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 catalog_product_entity table", "description": "The Magento 2 catalog_product_entity table: why it has no name or price column, product types, and the row_id difference on Adobe Commerce.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/catalog-product-entity/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Products and attributes</p>
+    <h1>Magento 2 <code>catalog_product_entity</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">One row per product (per <b>version</b> on Adobe Commerce). It has only a few fixed columns; names, prices and everything else are in attribute value tables.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>entity_id</code></td><td>The product ID shown in the admin. Order lines, categories and stock link to it.</td></tr><tr><td><code>sku</code></td><td>The product's SKU.</td></tr><tr><td><code>type_id</code></td><td><code>simple</code>, <code>configurable</code>, <code>bundle</code>, <code>grouped</code>, <code>virtual</code>, <code>downloadable</code> (and <code>giftcard</code> on Adobe Commerce).</td></tr><tr><td><code>attribute_set_id</code></td><td>The attribute set it uses.</td></tr><tr><td><code>created_at / updated_at</code></td><td>When it was created and last saved.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>There's no <code>name</code> or <code>price</code> column: those are in <code>catalog_product_entity_varchar</code> and <code>catalog_product_entity_decimal</code>.</li><li>On <b>Adobe Commerce</b>, each product can have several rows, one per scheduled version, with <code>row_id</code>, <code>created_in</code> and <code>updated_in</code>. Filter to the current version: <code>created_in &lt;= UNIX_TIMESTAMP() AND updated_in &gt; UNIX_TIMESTAMP()</code>.</li></ul>
+
+    <h2>Example: Number of products per type</h2>
+    <h3>Magento Open Source</h3>
+    <pre><code>SELECT type_id, COUNT(*) AS products
+FROM catalog_product_entity
+GROUP BY type_id
+ORDER BY products DESC;</code></pre>
+    <h3>Adobe Commerce</h3>
+    <pre><code>SELECT type_id, COUNT(*) AS products
+FROM catalog_product_entity e
+WHERE e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()   -- current version only
+GROUP BY type_id
+ORDER BY products DESC;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How many products of each type do we have?”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>Extra columns on Adobe Commerce</h2>
+    <p>Adobe Commerce has 11 columns here instead of 8. The extra ones come from these Commerce features:</p>
+    <ul><li><b>Catalog Staging:</b> <code>row_id</code>, <code>created_in</code>, <code>updated_in</code></li></ul>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>entity_id</code> → <code>sequence_product.sequence_value</code> <span class="qtag">Adobe Commerce</span></li></ul>
+
+    <h2>All 8 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>entity_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Entity ID</td></tr><tr><td><code>attribute_set_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Attribute Set ID</td></tr><tr><td><code>type_id</code></td><td><code>varchar(32)</code></td><td></td><td>Type ID</td></tr><tr><td><code>sku</code></td><td><code>varchar(64)</code></td><td></td><td>SKU</td></tr><tr><td><code>has_options</code></td><td><code>smallint(6)</code></td><td></td><td>Has Options</td></tr><tr><td><code>required_options</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Required Options</td></tr><tr><td><code>created_at</code></td><td><code>timestamp</code></td><td></td><td>Creation Time</td></tr><tr><td><code>updated_at</code></td><td><code>timestamp</code></td><td></td><td>Update Time</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/catalog-product-entity-int/">catalog_product_entity_int</a></li><li><a href="/magento-database/catalog-product-entity-varchar/">catalog_product_entity_varchar</a></li><li><a href="/magento-database/catalog-product-entity-decimal/">catalog_product_entity_decimal</a></li><li><a href="/magento-database/eav-attribute/">eav_attribute</a></li><li><a href="/magento-database/catalog-category-product/">catalog_category_product</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 sales_order_item table: columns and examples</title>
+  <meta name="description" content="The Magento 2 sales_order_item table explained: parent and child rows for configurable products, quantities, prices and discounts.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/sales-order-item/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 sales_order_item table: columns and examples">
+  <meta property="og:description" content="The Magento 2 sales_order_item table explained: parent and child rows for configurable products, quantities, prices and discounts.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/sales-order-item/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 sales_order_item table", "description": "The Magento 2 sales_order_item table explained: parent and child rows for configurable products, quantities, prices and discounts.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/sales-order-item/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Orders and sales</p>
+    <h1>Magento 2 <code>sales_order_item</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">One row per product line in an order. Configurable and bundle products have a parent row plus child rows, so the same sale can appear twice.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>item_id</code></td><td>Internal ID of the order line.</td></tr><tr><td><code>order_id</code></td><td>The order, linking to <code>sales_order.entity_id</code>.</td></tr><tr><td><code>parent_item_id</code></td><td>NULL for a top-level line. For the chosen variant of a configurable product (or a bundle part), the parent line's <code>item_id</code>.</td></tr><tr><td><code>product_id</code></td><td>The product's ID at the time of ordering. On the parent line of a configurable product, it's the configurable product.</td></tr><tr><td><code>sku / name</code></td><td>Copied at order time. On the parent line of a configurable product, <code>sku</code> is the chosen <b>variant's</b> SKU.</td></tr><tr><td><code>product_type</code></td><td><code>simple</code>, <code>configurable</code>, <code>bundle</code>, <code>virtual</code> and so on.</td></tr><tr><td><code>qty_ordered</code></td><td>Quantity ordered. Also <code>qty_invoiced</code>, <code>qty_shipped</code>, <code>qty_refunded</code> and <code>qty_canceled</code>.</td></tr><tr><td><code>price / row_total</code></td><td>Unit price and price × quantity, before discount and without tax. <code>base_</code> versions are in your base currency.</td></tr><tr><td><code>discount_amount</code></td><td>The line's discount, stored as a <b>positive</b> number (unlike <code>sales_order</code>).</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>To count a sale once, use only top-level lines: <code>parent_item_id IS NULL</code>.</li><li>For configurable products, the child (variant) line has a price of 0. The price is on the parent line.</li><li>Order lines keep the SKU and name from the time of the order, even if the product is renamed or deleted later.</li></ul>
+
+    <h2>Example: Top 10 products by quantity sold, last 30 days</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT i.sku, MAX(i.name) AS name, SUM(i.qty_ordered) AS qty, ROUND(SUM(i.base_row_total), 2) AS revenue
+FROM sales_order_item i
+JOIN sales_order o ON o.entity_id = i.order_id
+WHERE o.created_at &gt;= NOW() - INTERVAL 30 DAY
+  AND o.state NOT IN (&#x27;canceled&#x27;, &#x27;closed&#x27;)
+  AND i.parent_item_id IS NULL      -- one row per product line
+GROUP BY i.sku
+ORDER BY qty DESC
+LIMIT 10;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Top 10 best-selling products in the last 30 days, with quantity and revenue”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>Extra columns on Adobe Commerce</h2>
+    <p>Adobe Commerce has 96 columns here instead of 80. The extra ones come from these Commerce features:</p>
+    <ul><li><b>Catalog Event:</b> <code>event_id</code></li><li><b>Gift Registry:</b> <code>giftregistry_item_id</code></li><li><b>Gift Wrapping:</b> <code>gw_id</code>, <code>gw_base_price</code>, <code>gw_price</code>, <code>gw_base_tax_amount</code>, <code>gw_tax_amount</code>, <code>gw_base_price_invoiced</code>, <code>gw_price_invoiced</code>, <code>gw_base_tax_amount_invoiced</code>, <code>gw_tax_amount_invoiced</code>, <code>gw_base_price_refunded</code>, <code>gw_price_refunded</code>, <code>gw_base_tax_amount_refunded</code>, <code>gw_tax_amount_refunded</code></li><li><b>Rma:</b> <code>qty_returned</code></li></ul>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>order_id</code> → <a href="/magento-database/sales-order/">sales_order</a><code>.entity_id</code></li><li><code>store_id</code> → <code>store.store_id</code></li></ul>
+
+    <h2>All 80 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>item_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Item ID</td></tr><tr><td><code>order_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Order ID</td></tr><tr><td><code>parent_item_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Parent Item ID</td></tr><tr><td><code>quote_item_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Quote Item ID</td></tr><tr><td><code>store_id</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Store ID</td></tr><tr><td><code>created_at</code></td><td><code>timestamp</code></td><td></td><td>Created At</td></tr><tr><td><code>updated_at</code></td><td><code>timestamp</code></td><td></td><td>Updated At</td></tr><tr><td><code>product_id</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Product ID</td></tr><tr><td><code>product_type</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Product Type</td></tr><tr><td><code>product_options</code></td><td><code>longtext</code></td><td>yes</td><td>Product Options</td></tr><tr><td><code>weight</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Weight</td></tr><tr><td><code>is_virtual</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Virtual</td></tr><tr><td><code>sku</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Sku</td></tr><tr><td><code>name</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Name</td></tr><tr><td><code>description</code></td><td><code>text</code></td><td>yes</td><td>Description</td></tr><tr><td><code>applied_rule_ids</code></td><td><code>text</code></td><td>yes</td><td>Applied Rule Ids</td></tr><tr><td><code>additional_data</code></td><td><code>text</code></td><td>yes</td><td>Additional Data</td></tr><tr><td><code>is_qty_decimal</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Qty Decimal</td></tr><tr><td><code>no_discount</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>No Discount</td></tr><tr><td><code>qty_backordered</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty Backordered</td></tr><tr><td><code>qty_canceled</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty Canceled</td></tr><tr><td><code>qty_invoiced</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty Invoiced</td></tr><tr><td><code>qty_ordered</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty Ordered</td></tr><tr><td><code>qty_refunded</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty Refunded</td></tr><tr><td><code>qty_shipped</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty Shipped</td></tr><tr><td><code>base_cost</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Base Cost</td></tr><tr><td><code>price</code></td><td><code>decimal(20,4)</code></td><td></td><td>Price</td></tr><tr><td><code>base_price</code></td><td><code>decimal(20,4)</code></td><td></td><td>Base Price</td></tr><tr><td><code>original_price</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Original Price</td></tr><tr><td><code>base_original_price</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Original Price</td></tr><tr><td><code>tax_percent</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Tax Percent</td></tr><tr><td><code>tax_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Tax Amount</td></tr><tr><td><code>base_tax_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Tax Amount</td></tr><tr><td><code>tax_invoiced</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Tax Invoiced</td></tr><tr><td><code>base_tax_invoiced</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Tax Invoiced</td></tr><tr><td><code>discount_percent</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Discount Percent</td></tr><tr><td><code>discount_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Amount</td></tr><tr><td><code>base_discount_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Amount</td></tr><tr><td><code>discount_invoiced</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Invoiced</td></tr><tr><td><code>base_discount_invoiced</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Invoiced</td></tr><tr><td><code>amount_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Amount Refunded</td></tr><tr><td><code>base_amount_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Amount Refunded</td></tr><tr><td><code>row_total</code></td><td><code>decimal(20,4)</code></td><td></td><td>Row Total</td></tr><tr><td><code>base_row_total</code></td><td><code>decimal(20,4)</code></td><td></td><td>Base Row Total</td></tr><tr><td><code>row_invoiced</code></td><td><code>decimal(20,4)</code></td><td></td><td>Row Invoiced</td></tr><tr><td><code>base_row_invoiced</code></td><td><code>decimal(20,4)</code></td><td></td><td>Base Row Invoiced</td></tr><tr><td><code>row_weight</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Row Weight</td></tr><tr><td><code>base_tax_before_discount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Tax Before Discount</td></tr><tr><td><code>tax_before_discount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Tax Before Discount</td></tr><tr><td><code>ext_order_item_id</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Ext Order Item ID</td></tr><tr><td><code>locked_do_invoice</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Locked Do Invoice</td></tr><tr><td><code>locked_do_ship</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Locked Do Ship</td></tr><tr><td><code>price_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Price Incl Tax</td></tr><tr><td><code>base_price_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Price Incl Tax</td></tr><tr><td><code>row_total_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Row Total Incl Tax</td></tr><tr><td><code>base_row_total_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Row Total Incl Tax</td></tr><tr><td><code>discount_tax_compensation_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Tax Compensation Amount</td></tr><tr><td><code>base_discount_tax_compensation_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Tax Compensation Amount</td></tr><tr><td><code>discount_tax_compensation_invoiced</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Tax Compensation Invoiced</td></tr><tr><td><code>base_discount_tax_compensation_invoiced</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Tax Compensation Invoiced</td></tr><tr><td><code>discount_tax_compensation_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Tax Compensation Refunded</td></tr><tr><td><code>base_discount_tax_compensation_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Tax Compensation Refunded</td></tr><tr><td><code>tax_canceled</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Tax Canceled</td></tr><tr><td><code>discount_tax_compensation_canceled</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Tax Compensation Canceled</td></tr><tr><td><code>tax_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Tax Refunded</td></tr><tr><td><code>base_tax_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Tax Refunded</td></tr><tr><td><code>discount_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Refunded</td></tr><tr><td><code>base_discount_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Refunded</td></tr><tr><td><code>weee_tax_applied</code></td><td><code>text</code></td><td>yes</td><td>Weee Tax Applied</td></tr><tr><td><code>weee_tax_applied_amount</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Weee Tax Applied Amount</td></tr><tr><td><code>weee_tax_applied_row_amount</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Weee Tax Applied Row Amount</td></tr><tr><td><code>weee_tax_disposition</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Weee Tax Disposition</td></tr><tr><td><code>weee_tax_row_disposition</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Weee Tax Row Disposition</td></tr><tr><td><code>base_weee_tax_applied_amount</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Base Weee Tax Applied Amount</td></tr><tr><td><code>base_weee_tax_applied_row_amnt</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Base Weee Tax Applied Row Amnt</td></tr><tr><td><code>base_weee_tax_disposition</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Base Weee Tax Disposition</td></tr><tr><td><code>base_weee_tax_row_disposition</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Base Weee Tax Row Disposition</td></tr><tr><td><code>gift_message_id</code></td><td><code>int(11)</code></td><td>yes</td><td>Gift Message ID</td></tr><tr><td><code>gift_message_available</code></td><td><code>int(11)</code></td><td>yes</td><td>Gift Message Available</td></tr><tr><td><code>free_shipping</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Free Shipping</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/sales-order/">sales_order</a></li><li><a href="/magento-database/catalog-product-entity/">catalog_product_entity</a></li><li><a href="/magento-database/quote-item/">quote_item</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

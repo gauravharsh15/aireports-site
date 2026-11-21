@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 sales_invoice table: columns and examples</title>
+  <meta name="description" content="The Magento 2 sales_invoice table: invoice numbers, states (1 open, 2 paid, 3 canceled), totals and how invoices link to orders.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/sales-invoice/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 sales_invoice table: columns and examples">
+  <meta property="og:description" content="The Magento 2 sales_invoice table: invoice numbers, states (1 open, 2 paid, 3 canceled), totals and how invoices link to orders.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/sales-invoice/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 sales_invoice table", "description": "The Magento 2 sales_invoice table: invoice numbers, states (1 open, 2 paid, 3 canceled), totals and how invoices link to orders.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/sales-invoice/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Orders and sales</p>
+    <h1>Magento 2 <code>sales_invoice</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">One row per invoice. An order can have several invoices if it was invoiced in parts.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>entity_id</code></td><td>Internal invoice ID.</td></tr><tr><td><code>order_id</code></td><td>The order, linking to <code>sales_order.entity_id</code>.</td></tr><tr><td><code>increment_id</code></td><td>The invoice number shown in the admin and in emails.</td></tr><tr><td><code>state</code></td><td><code>1</code> = open (pending), <code>2</code> = paid, <code>3</code> = canceled.</td></tr><tr><td><code>grand_total / base_grand_total</code></td><td>Invoice total in the order currency / your base currency.</td></tr><tr><td><code>subtotal / tax_amount / shipping_amount</code></td><td>The parts of the total.</td></tr><tr><td><code>created_at</code></td><td>When the invoice was created, in UTC.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>Invoice lines are in <code>sales_invoice_item</code>; credit memos (refunds) are in <code>sales_creditmemo</code>.</li><li>Revenue by invoice date and revenue by order date are different numbers. Decide which one your report needs.</li></ul>
+
+    <h2>Example: Invoiced revenue per month this year</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT DATE_FORMAT(created_at, &#x27;%Y-%m&#x27;) AS month, COUNT(*) AS invoices, ROUND(SUM(base_grand_total), 2) AS invoiced
+FROM sales_invoice
+WHERE created_at &gt;= MAKEDATE(YEAR(NOW()), 1)
+  AND state = 2                     -- paid
+GROUP BY month
+ORDER BY month;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How much did we invoice per month this year?”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>Extra columns on Adobe Commerce</h2>
+    <p>Adobe Commerce has 66 columns here instead of 47. The extra ones come from these Commerce features:</p>
+    <ul><li><b>Customer Balance:</b> <code>base_customer_balance_amount</code>, <code>customer_balance_amount</code></li><li><b>Gift Card Account:</b> <code>base_gift_cards_amount</code>, <code>gift_cards_amount</code></li><li><b>Gift Wrapping:</b> <code>gw_base_price</code>, <code>gw_price</code>, <code>gw_items_base_price</code>, <code>gw_items_price</code>, <code>gw_card_base_price</code>, <code>gw_card_price</code>, <code>gw_base_tax_amount</code>, <code>gw_tax_amount</code>, <code>gw_items_base_tax_amount</code>, <code>gw_items_tax_amount</code>, <code>gw_card_base_tax_amount</code>, <code>gw_card_tax_amount</code></li><li><b>Reward:</b> <code>base_reward_currency_amount</code>, <code>reward_currency_amount</code>, <code>reward_points_balance</code></li></ul>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>order_id</code> → <a href="/magento-database/sales-order/">sales_order</a><code>.entity_id</code></li><li><code>store_id</code> → <code>store.store_id</code></li></ul>
+
+    <h2>All 47 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>entity_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Entity ID</td></tr><tr><td><code>store_id</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Store ID</td></tr><tr><td><code>base_grand_total</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Grand Total</td></tr><tr><td><code>shipping_tax_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Shipping Tax Amount</td></tr><tr><td><code>tax_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Tax Amount</td></tr><tr><td><code>base_tax_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Tax Amount</td></tr><tr><td><code>store_to_order_rate</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Store To Order Rate</td></tr><tr><td><code>base_shipping_tax_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Shipping Tax Amount</td></tr><tr><td><code>base_discount_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Amount</td></tr><tr><td><code>base_to_order_rate</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base To Order Rate</td></tr><tr><td><code>grand_total</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Grand Total</td></tr><tr><td><code>shipping_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Shipping Amount</td></tr><tr><td><code>subtotal_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Subtotal Incl Tax</td></tr><tr><td><code>base_subtotal_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Subtotal Incl Tax</td></tr><tr><td><code>store_to_base_rate</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Store To Base Rate</td></tr><tr><td><code>base_shipping_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Shipping Amount</td></tr><tr><td><code>total_qty</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Total Qty</td></tr><tr><td><code>base_to_global_rate</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base To Global Rate</td></tr><tr><td><code>subtotal</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Subtotal</td></tr><tr><td><code>base_subtotal</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Subtotal</td></tr><tr><td><code>discount_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Amount</td></tr><tr><td><code>billing_address_id</code></td><td><code>int(11)</code></td><td>yes</td><td>Billing Address ID</td></tr><tr><td><code>is_used_for_refund</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Is Used For Refund</td></tr><tr><td><code>order_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Order ID</td></tr><tr><td><code>email_sent</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Email Sent</td></tr><tr><td><code>send_email</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Send Email</td></tr><tr><td><code>can_void_flag</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Can Void Flag</td></tr><tr><td><code>state</code></td><td><code>int(11)</code></td><td>yes</td><td>State</td></tr><tr><td><code>shipping_address_id</code></td><td><code>int(11)</code></td><td>yes</td><td>Shipping Address ID</td></tr><tr><td><code>store_currency_code</code></td><td><code>varchar(3)</code></td><td>yes</td><td>Store Currency Code</td></tr><tr><td><code>transaction_id</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Transaction ID</td></tr><tr><td><code>order_currency_code</code></td><td><code>varchar(3)</code></td><td>yes</td><td>Order Currency Code</td></tr><tr><td><code>base_currency_code</code></td><td><code>varchar(3)</code></td><td>yes</td><td>Base Currency Code</td></tr><tr><td><code>global_currency_code</code></td><td><code>varchar(3)</code></td><td>yes</td><td>Global Currency Code</td></tr><tr><td><code>increment_id</code></td><td><code>varchar(50)</code></td><td>yes</td><td>Increment ID</td></tr><tr><td><code>created_at</code></td><td><code>timestamp</code></td><td></td><td>Created At</td></tr><tr><td><code>updated_at</code></td><td><code>timestamp</code></td><td></td><td>Updated At</td></tr><tr><td><code>discount_tax_compensation_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Discount Tax Compensation Amount</td></tr><tr><td><code>base_discount_tax_compensation_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Discount Tax Compensation Amount</td></tr><tr><td><code>shipping_discount_tax_compensation_amount</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Shipping Discount Tax Compensation Amount</td></tr><tr><td><code>base_shipping_discount_tax_compensation_amnt</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Shipping Discount Tax Compensation Amount</td></tr><tr><td><code>shipping_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Shipping Incl Tax</td></tr><tr><td><code>base_shipping_incl_tax</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Shipping Incl Tax</td></tr><tr><td><code>base_total_refunded</code></td><td><code>decimal(20,4)</code></td><td>yes</td><td>Base Total Refunded</td></tr><tr><td><code>discount_description</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Discount Description</td></tr><tr><td><code>customer_note</code></td><td><code>text</code></td><td>yes</td><td>Customer Note</td></tr><tr><td><code>customer_note_notify</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Customer Note Notify</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/sales-order/">sales_order</a></li><li><a href="/magento-database/sales-order-payment/">sales_order_payment</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

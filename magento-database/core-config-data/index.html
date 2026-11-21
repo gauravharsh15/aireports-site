@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 core_config_data table: columns and examples</title>
+  <meta name="description" content="The Magento 2 core_config_data table stores every changed setting per scope. Scopes, paths, what overrides it, and why it&#x27;s sensitive.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/core-config-data/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 core_config_data table: columns and examples">
+  <meta property="og:description" content="The Magento 2 core_config_data table stores every changed setting per scope. Scopes, paths, what overrides it, and why it&#x27;s sensitive.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/core-config-data/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 core_config_data table", "description": "The Magento 2 core_config_data table stores every changed setting per scope. Scopes, paths, what overrides it, and why it's sensitive.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/core-config-data/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › URLs and configuration</p>
+    <h1>Magento 2 <code>core_config_data</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">Every setting changed under <b>Stores › Configuration</b>, per scope.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>scope</code></td><td><code>default</code>, <code>websites</code> or <code>stores</code>.</td></tr><tr><td><code>scope_id</code></td><td><code>0</code> for default, otherwise the website ID or store view ID.</td></tr><tr><td><code>path</code></td><td>The setting's path, such as <code>web/secure/base_url</code> or <code>general/locale/timezone</code>.</td></tr><tr><td><code>value</code></td><td>The saved value. Some are encrypted.</td></tr><tr><td><code>updated_at</code></td><td>When it was last changed.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>Only changed settings are here. Defaults come from each module's <code>config.xml</code>.</li><li>Values in <code>app/etc/env.php</code> or <code>app/etc/config.php</code> win over this table and lock the field in the admin.</li><li>It can hold API keys and passwords. Treat exports with care. <b>AI Reports never reads this table.</b></li></ul>
+
+    <h2>Example: One setting across all scopes</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT scope, scope_id, path, value, updated_at
+FROM core_config_data
+WHERE path = &#x27;web/secure/base_url&#x27;
+ORDER BY scope, scope_id;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Why AI Reports blocks this table</p>
+      <p>Settings can include API keys and passwords, so <a href="/">AI Reports</a> never queries this table and hides it from the AI completely. Read the <a href="/guides/ai-magento-database-safety/">AI safety checklist</a>.</p>
+    </aside>
+
+    <p class="callout">This table has the same 6 columns on Magento Open Source and Adobe Commerce.</p>
+
+
+    <h2>All 6 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>config_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Config ID</td></tr><tr><td><code>scope</code></td><td><code>varchar(8)</code></td><td></td><td>Config Scope</td></tr><tr><td><code>scope_id</code></td><td><code>int(11)</code></td><td></td><td>Config Scope ID</td></tr><tr><td><code>path</code></td><td><code>varchar(255)</code></td><td></td><td>Config Path</td></tr><tr><td><code>value</code></td><td><code>text</code></td><td>yes</td><td>Config Value</td></tr><tr><td><code>updated_at</code></td><td><code>timestamp</code></td><td></td><td>Updated At</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/url-rewrite/">url_rewrite</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

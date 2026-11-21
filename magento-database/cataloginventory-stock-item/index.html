@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento cataloginventory_stock_item table explained</title>
+  <meta name="description" content="The Magento 2 cataloginventory_stock_item table: quantity, stock status, backorders and min/max sale quantities per product.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/cataloginventory-stock-item/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento cataloginventory_stock_item table explained">
+  <meta property="og:description" content="The Magento 2 cataloginventory_stock_item table: quantity, stock status, backorders and min/max sale quantities per product.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/cataloginventory-stock-item/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 cataloginventory_stock_item table", "description": "The Magento 2 cataloginventory_stock_item table: quantity, stock status, backorders and min/max sale quantities per product.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/cataloginventory-stock-item/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Categories and stock</p>
+    <h1>Magento 2 <code>cataloginventory_stock_item</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">Stock settings and quantity per product for the default stock. With Multi-Source Inventory (MSI), Magento keeps it in sync with the default source.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>product_id</code></td><td>The product's ID.</td></tr><tr><td><code>stock_id</code></td><td><code>1</code> = the default stock.</td></tr><tr><td><code>qty</code></td><td>Quantity in stock.</td></tr><tr><td><code>is_in_stock</code></td><td><code>1</code> = in stock, <code>0</code> = out of stock.</td></tr><tr><td><code>manage_stock / use_config_manage_stock</code></td><td>Whether stock is tracked, or follows the store setting.</td></tr><tr><td><code>backorders</code></td><td><code>0</code> = no backorders, <code>1</code> = allow below zero, <code>2</code> = allow and notify the customer.</td></tr><tr><td><code>min_sale_qty / max_sale_qty</code></td><td>Smallest and largest quantity per order.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>Many columns come in pairs with <code>use_config_…</code>: when that flag is 1, the store-wide setting applies, not this row's value.</li><li>With several sources, the real stock is per source in <code>inventory_source_item</code>, and what can still be sold also subtracts open orders (reservations).</li></ul>
+
+    <h2>Example: In-stock products with fewer than 5 units</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT (SELECT p.sku FROM catalog_product_entity p WHERE p.entity_id = si.product_id LIMIT 1) AS sku,
+       si.qty
+FROM cataloginventory_stock_item si
+WHERE si.stock_id = 1
+  AND si.is_in_stock = 1
+  AND si.qty &lt; 5
+ORDER BY si.qty;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which products have fewer than 5 units in stock?”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <h2>Extra columns on Adobe Commerce</h2>
+    <p>Adobe Commerce has 28 columns here instead of 26. The extra ones come from these Commerce features:</p>
+    <ul><li><b>Scalable Inventory:</b> <code>deferred_stock_update</code>, <code>use_config_deferred_stock_update</code></li></ul>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>product_id</code> → <a href="/magento-database/catalog-product-entity/">catalog_product_entity</a><code>.entity_id</code></li><li><code>stock_id</code> → <code>cataloginventory_stock.stock_id</code></li><li><code>product_id</code> → <code>sequence_product.sequence_value</code> <span class="qtag">Adobe Commerce</span></li></ul>
+
+    <h2>All 26 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>item_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Item ID</td></tr><tr><td><code>product_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Product ID</td></tr><tr><td><code>stock_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Stock ID</td></tr><tr><td><code>qty</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Qty</td></tr><tr><td><code>min_qty</code></td><td><code>decimal(12,4)</code></td><td></td><td>Min Qty</td></tr><tr><td><code>use_config_min_qty</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Min Qty</td></tr><tr><td><code>is_qty_decimal</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Is Qty Decimal</td></tr><tr><td><code>backorders</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Backorders</td></tr><tr><td><code>use_config_backorders</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Backorders</td></tr><tr><td><code>min_sale_qty</code></td><td><code>decimal(12,4)</code></td><td></td><td>Min Sale Qty</td></tr><tr><td><code>use_config_min_sale_qty</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Min Sale Qty</td></tr><tr><td><code>max_sale_qty</code></td><td><code>decimal(12,4)</code></td><td></td><td>Max Sale Qty</td></tr><tr><td><code>use_config_max_sale_qty</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Max Sale Qty</td></tr><tr><td><code>is_in_stock</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Is In Stock</td></tr><tr><td><code>low_stock_date</code></td><td><code>timestamp</code></td><td>yes</td><td>Low Stock Date</td></tr><tr><td><code>notify_stock_qty</code></td><td><code>decimal(12,4)</code></td><td>yes</td><td>Notify Stock Qty</td></tr><tr><td><code>use_config_notify_stock_qty</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Notify Stock Qty</td></tr><tr><td><code>manage_stock</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Manage Stock</td></tr><tr><td><code>use_config_manage_stock</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Manage Stock</td></tr><tr><td><code>stock_status_changed_auto</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Stock Status Changed Automatically</td></tr><tr><td><code>use_config_qty_increments</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Qty Increments</td></tr><tr><td><code>qty_increments</code></td><td><code>decimal(12,4)</code></td><td></td><td>Qty Increments</td></tr><tr><td><code>use_config_enable_qty_inc</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Use Config Enable Qty Increments</td></tr><tr><td><code>enable_qty_increments</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Enable Qty Increments</td></tr><tr><td><code>is_decimal_divided</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Is Divided into Multiple Boxes for Shipping</td></tr><tr><td><code>website_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Website ID</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/inventory-source-item/">inventory_source_item</a></li><li><a href="/magento-database/catalog-product-entity/">catalog_product_entity</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

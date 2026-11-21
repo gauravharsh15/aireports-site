@@ -2,16 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://gauravextensions.com/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/docs.html</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/licence.html</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/privacy.html</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/magento-ai-reporting/</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/chatgpt-magento-sql/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/ai-magento-database-safety/</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/questions-to-ask-your-magento-data/</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/magento-product-not-showing/</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/magento-products-without-images/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/chatgpt-magento-sql/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/magento-ai-reporting/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/magento-best-selling-products-report/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/magento-customers-not-ordered/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/magento-out-of-stock-selling-products/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/magento-product-not-showing/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/magento-products-without-images/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/questions-to-ask-your-magento-data/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/licence.html</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/catalog-category-product/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/catalog-product-entity-decimal/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/catalog-product-entity-int/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/catalog-product-entity-varchar/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/catalog-product-entity/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/cataloginventory-stock-item/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/core-config-data/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/customer-address-entity/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/customer-entity/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/eav-attribute/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/inventory-source-item/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/quote-item/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/quote/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/sales-invoice/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/sales-order-address/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/sales-order-grid/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/sales-order-item/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/sales-order-payment/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/sales-order/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/url-rewrite/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/privacy.html</loc><lastmod>2026-11-21</lastmod></url>
 </urlset>

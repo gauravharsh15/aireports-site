@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 customer_entity table: columns and examples</title>
+  <meta name="description" content="The Magento 2 customer_entity table: one row per customer account, with email, group, website and default addresses. Guests aren&#x27;t here.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-database/customer-entity/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 customer_entity table: columns and examples">
+  <meta property="og:description" content="The Magento 2 customer_entity table: one row per customer account, with email, group, website and default addresses. Guests aren&#x27;t here.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-database/customer-entity/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Magento 2 customer_entity table", "description": "The Magento 2 customer_entity table: one row per customer account, with email, group, website and default addresses. Guests aren't here.", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-database/customer-entity/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide dbref">
+    <p class="crumbs"><a href="/guides/">Guides</a> › <a href="/magento-database/">Database reference</a> › Customers</p>
+    <h1>Magento 2 <code>customer_entity</code> table</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 21 November 2026 · Checked against Magento Open Source and Adobe Commerce 2.4.8</p>
+    <p class="answer">One row per registered customer account. Guest shoppers aren't here; their details live only on their orders.</p>
+
+    <h2>Key columns</h2>
+    <table>
+      <tr><th>Column</th><th>What it means</th></tr>
+      <tr><td><code>entity_id</code></td><td>Customer ID. Orders link to it in <code>sales_order.customer_id</code>.</td></tr><tr><td><code>email</code></td><td>The login email.</td></tr><tr><td><code>firstname / lastname</code></td><td>The customer's name.</td></tr><tr><td><code>group_id</code></td><td>Customer group, linking to <code>customer_group.customer_group_id</code>.</td></tr><tr><td><code>website_id</code></td><td>The website the account belongs to (unless accounts are shared across websites).</td></tr><tr><td><code>store_id</code></td><td>The store view it was created in.</td></tr><tr><td><code>default_billing / default_shipping</code></td><td>The default addresses, linking to <code>customer_address_entity.entity_id</code>.</td></tr><tr><td><code>created_at</code></td><td>When the account was created, in UTC.</td></tr>
+    </table>
+
+    <h2>Good to know</h2>
+    <ul><li>The table also holds password hashes and reset tokens. Never export it whole.</li><li>Extra customer attributes are stored in <code>customer_entity_varchar</code>, <code>_int</code> and similar tables.</li></ul>
+
+    <h2>Example: New customer accounts per month this year, per group</h2>
+    <p>Works on Magento Open Source and Adobe Commerce.</p>
+    <pre><code>SELECT DATE_FORMAT(c.created_at, &#x27;%Y-%m&#x27;) AS month, g.customer_group_code AS customer_group, COUNT(*) AS customers
+FROM customer_entity c
+JOIN customer_group g ON g.customer_group_id = c.group_id
+WHERE c.created_at &gt;= MAKEDATE(YEAR(NOW()), 1)
+GROUP BY month, customer_group
+ORDER BY month, customer_group;</code></pre>
+    <p class="caption-note">Tested on Magento Open Source and Adobe Commerce 2.4.8. Read-only. If your tables have a prefix, add it to each table name.</p>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">Skip the SQL</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How many customers registered each month this year, per customer group?”</p>
+      <p>It knows your store's tables, store views and status codes, writes the query for you, and runs it read-only.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+
+    <p class="callout">This table has the same 29 columns on Magento Open Source and Adobe Commerce.</p>
+
+    <h2>Foreign keys</h2>
+    <ul><li><code>store_id</code> → <code>store.store_id</code></li><li><code>website_id</code> → <code>store_website.website_id</code></li></ul>
+
+    <h2>All 29 columns (Magento Open Source)</h2>
+    <details class="allcols"><summary>Show all columns</summary>
+    <table>
+      <tr><th>Column</th><th>Type</th><th>Can be empty</th><th>Magento's description</th></tr>
+      <tr><td><code>entity_id</code></td><td><code>int(10) unsigned</code></td><td></td><td>Entity ID</td></tr><tr><td><code>website_id</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Website ID</td></tr><tr><td><code>email</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Email</td></tr><tr><td><code>group_id</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Group ID</td></tr><tr><td><code>increment_id</code></td><td><code>varchar(50)</code></td><td>yes</td><td>Increment ID</td></tr><tr><td><code>store_id</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Store ID</td></tr><tr><td><code>created_at</code></td><td><code>timestamp</code></td><td></td><td>Created At</td></tr><tr><td><code>updated_at</code></td><td><code>timestamp</code></td><td></td><td>Updated At</td></tr><tr><td><code>is_active</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Is Active</td></tr><tr><td><code>disable_auto_group_change</code></td><td><code>smallint(5) unsigned</code></td><td></td><td>Disable automatic group change based on VAT ID</td></tr><tr><td><code>created_in</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Created From</td></tr><tr><td><code>prefix</code></td><td><code>varchar(40)</code></td><td>yes</td><td>Name Prefix</td></tr><tr><td><code>firstname</code></td><td><code>varchar(255)</code></td><td>yes</td><td>First Name</td></tr><tr><td><code>middlename</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Middle Name/Initial</td></tr><tr><td><code>lastname</code></td><td><code>varchar(255)</code></td><td>yes</td><td>Last Name</td></tr><tr><td><code>suffix</code></td><td><code>varchar(40)</code></td><td>yes</td><td>Name Suffix</td></tr><tr><td><code>dob</code></td><td><code>date</code></td><td>yes</td><td>Date of Birth</td></tr><tr><td><code>password_hash</code></td><td><code>varchar(128)</code></td><td>yes</td><td>Password_hash</td></tr><tr><td><code>rp_token</code></td><td><code>varchar(128)</code></td><td>yes</td><td>Reset password token</td></tr><tr><td><code>rp_token_created_at</code></td><td><code>datetime</code></td><td>yes</td><td>Reset password token creation time</td></tr><tr><td><code>default_billing</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Default Billing Address</td></tr><tr><td><code>default_shipping</code></td><td><code>int(10) unsigned</code></td><td>yes</td><td>Default Shipping Address</td></tr><tr><td><code>taxvat</code></td><td><code>varchar(50)</code></td><td>yes</td><td>Tax/VAT Number</td></tr><tr><td><code>confirmation</code></td><td><code>varchar(64)</code></td><td>yes</td><td>Is Confirmed</td></tr><tr><td><code>gender</code></td><td><code>smallint(5) unsigned</code></td><td>yes</td><td>Gender</td></tr><tr><td><code>failures_num</code></td><td><code>smallint(6)</code></td><td>yes</td><td>Failure Number</td></tr><tr><td><code>first_failure</code></td><td><code>timestamp</code></td><td>yes</td><td>First Failure</td></tr><tr><td><code>lock_expires</code></td><td><code>timestamp</code></td><td>yes</td><td>Lock Expiration Date</td></tr><tr><td><code>session_cutoff</code></td><td><code>timestamp</code></td><td>yes</td><td>Session Cutoff Time</td></tr>
+    </table>
+    </details>
+
+    <h2>Related tables</h2>
+    <ul class="related"><li><a href="/magento-database/customer-address-entity/">customer_address_entity</a></li><li><a href="/magento-database/sales-order/">sales_order</a></li></ul>
+
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/guide.pdf">User guide (PDF)</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

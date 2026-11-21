@@ -26,6 +26,8 @@ document.querySelectorAll("[data-checkout]").forEach((el) => {
     const params = new URLSearchParams({ theme: "light" });
     if (offerOn) params.set("discount_code", OFFER_CODE);
     el.href = url + (url.includes("?") ? "&" : "?") + params.toString();
+    // Robots must not open checkouts: every visit creates a checkout session in Polar.
+    el.rel = "nofollow noopener";
   } else {
     el.textContent = "Coming soon";
     el.setAttribute("aria-disabled", "true");

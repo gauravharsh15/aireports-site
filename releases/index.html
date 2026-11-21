@@ -40,6 +40,11 @@
     <h1>Releases</h1>
     <p class="lead-left">What changed in each version, newest first. To update, follow <a href="/docs.html">Docs › Updating</a>. If you stop renewing, you keep every version released while your plan was active.</p>
 
+    <section class="release" id="v3-0-2">
+      <h2>3.0.2 <span class="release-date">21 November 2026</span></h2>
+      <p class="release-title">PHP 8.4 support</p>
+      <ul><li><b>Runs on PHP 8.4.</b> Magento 2.4.8 supports PHP 8.4, and AI Reports now installs there too. PHP 8.2, 8.3 and 8.4 are supported. Tested on Adobe Commerce 2.4.8 with PHP 8.3 and 8.4.</li><li>Clearer documentation: re-using an approved answer makes no AI call in Table + CSV mode and one AI call in Answer mode; a question runs up to 2 queries by default.</li><li>The licence terms and the expiry notice no longer mention rule packs.</li><li>No database changes. After updating, the store snapshot rebuilds overnight, or run <code>bin/magento aireports:knowledge:build</code> straight away.</li></ul>
+    </section>
     <section class="release" id="v3-0-1">
       <h2>3.0.1 <span class="release-date">20 November 2026</span></h2>
       <p class="release-title">More accurate answers on Adobe Commerce</p>

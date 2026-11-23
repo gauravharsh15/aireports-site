@@ -44,8 +44,8 @@
     <table>
       <tr><th>When</th><th>What</th><th>Why</th></tr>
       <tr><td>You buy a licence</td><td>Name, e-mail, billing country and payment details, collected by Polar, our reseller and merchant of record. We see the name, e-mail and order, not card details.</td><td>To issue and renew your licence, and to contact you about it</td></tr>
-      <tr><td>Once a day, from your store</td><td>Licence key, the store's main domain, the module version and the Magento edition and version</td><td>To confirm the licence and count production domains</td></tr>
-      <tr><td>Composer install or update</td><td>Licence key, IP address and the package version requested</td><td>To serve the versions your licence covers</td></tr>
+      <tr><td>Once a day, from your store</td><td>Licence key, the store's main domain, the module version and the Magento edition and version</td><td>To confirm the licence and count production domains, including any over the licence's limit</td></tr>
+      <tr><td>Composer install or update</td><td>Licence key, IP address, Composer's user agent (its version, operating system, PHP version and whether it runs in CI) and the package version requested</td><td>To serve the versions your licence covers, and to spot a key used on more projects than its licence allows</td></tr>
       <tr><td>You visit this website</td><td>Page views, the page you came from, your country and browser, counted by Cloudflare Web Analytics without cookies and without following you to other sites</td><td>To see how many people visit and which pages help them</td></tr>
     </table>
 
@@ -56,7 +56,7 @@
     <p>Questions, store structure and, in Answer mode, up to 20 masked result rows per query go from your server directly to the AI provider you configure. Their terms and data-retention policy apply. Ask them about zero data retention if customer data must not be retained.</p>
 
     <h2>Keeping and deleting data</h2>
-    <p>We keep licence and domain records while your licence exists and for as long as tax law requires afterwards. Ask us to delete your records at any time, except what we must keep for tax.</p>
+    <p>We keep licence and domain records while your licence exists and for as long as tax law requires afterwards. Records of Composer requests (IP address and user agent) are deleted after 12 months. Ask us to delete your records at any time, except what we must keep for tax.</p>
     <p>Data is stored with Supabase in the region we chose for the project and is not sold or shared, except with Polar to process purchases.</p>
 
     <p><a data-contact href="#">Contact us</a></p>

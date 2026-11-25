@@ -1,3 +1,8 @@
+// Until GitHub Pages can enforce HTTPS, send http:// visitors to the https:// page (same path).
+if (location.protocol === "http:" && /(^|\.)gauravextensions\.com$/.test(location.hostname)) {
+  location.replace("https://gauravextensions.com" + location.pathname + location.search + location.hash);
+}
+
 // Checkout links (Polar) and the public support address; empty values hide the button or link.
 const SITE = {
   checkout: {

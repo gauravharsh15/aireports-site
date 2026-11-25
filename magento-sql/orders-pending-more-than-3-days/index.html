@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: find orders stuck in pending (SQL)</title>
+  <meta name="description" content="List Magento 2 orders still pending or pending payment after 3 days, oldest first. Order grid filters and a SQL query.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-sql/orders-pending-more-than-3-days/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: find orders stuck in pending (SQL)">
+  <meta property="og:description" content="List Magento 2 orders still pending or pending payment after 3 days, oldest first. Order grid filters and a SQL query.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-sql/orders-pending-more-than-3-days/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 SQL queries", "item": "https://gauravextensions.com/magento-sql/"}, {"@type": "ListItem", "position": 2, "name": "Which orders are still pending after 3 days?", "item": "https://gauravextensions.com/magento-sql/orders-pending-more-than-3-days/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Which orders are still pending after 3 days?", "description": "List Magento 2 orders still pending or pending payment after 3 days, oldest first. Order grid filters and a SQL query.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-sql/orders-pending-more-than-3-days/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-sql/">Magento 2 SQL queries</a> › Orders and sales</p>
+    <h1>Which orders are still pending after 3 days?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Filter the order grid by status <i>Pending</i> and an old purchase date. The query below also catches <i>pending payment</i> orders, which the grid shows under a different status.</p>
+    <h2>In the Magento admin</h2>
+    <ol class="checklist"><li>Go to <b>Sales › Orders › Filters</b>.</li><li>Set <b>Status</b> to <i>Pending</i> and <b>Purchase Date</b> to before 3 days ago. Repeat for <i>Pending Payment</i>.</li></ol>
+    <h2>With one query</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT o.increment_id, o.created_at, o.state, o.status,
+       o.customer_email, o.base_grand_total
+FROM sales_order o
+WHERE o.state IN (&#x27;new&#x27;, &#x27;pending_payment&#x27;)
+  AND o.created_at &lt; NOW() - INTERVAL 3 DAY
+ORDER BY o.created_at;</code></pre>
+    <h2>Good to know</h2>
+    <ul><li>Magento cancels unpaid <i>pending payment</i> orders by itself after the <b>Pending Payment Order Lifetime</b> (Stores › Configuration › Sales › Sales › Orders Cron Settings, 480 minutes by default), but only if cron is running. Old ones here are a sign it isn't.</li><li>Orders in <i>new</i> state with a successful payment usually mean the payment callback failed; check the payment record before canceling.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which orders are still pending after 3 days? Show order number, date and status.”</p>
+      <p>You get the list as a table you can download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-sql/orders-by-status-last-month/">How many orders did we receive last month, by status?</a></li><li><a href="/magento-sql/revenue-per-website-last-month/">What was our revenue per website last month, excluding canceled orders?</a></li><li><a href="/magento-sql/average-order-value-by-month/">What&#x27;s our average order value per month this year?</a></li><li><a href="/magento-sql/orders-by-payment-method/">Which payment methods were used last month, and how many orders each?</a></li><li><a href="/magento-sql/most-used-shipping-methods/">Which shipping methods do customers choose most?</a></li><li><a href="/magento-sql/paid-orders-not-shipped/">Which paid orders haven&#x27;t shipped after 3 days?</a></li><li><a href="/magento-database/sales-order/">The <code>sales_order</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: salable quantity is 0 but stock exists – fix</title>
+  <meta name="description" content="Magento 2 shows Quantity 50 but Salable Quantity 0? Reservations, stock-source links and sales channels explained, with SQL to find the cause and the fix.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/salable-quantity-zero/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: salable quantity is 0 but stock exists – fix">
+  <meta property="og:description" content="Magento 2 shows Quantity 50 but Salable Quantity 0? Reservations, stock-source links and sales channels explained, with SQL to find the cause and the fix.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/salable-quantity-zero/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "Why is salable quantity 0 when the product has stock?", "item": "https://gauravextensions.com/magento-troubleshooting/salable-quantity-zero/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why is salable quantity 0 when the product has stock?", "description": "Magento 2 shows Quantity 50 but Salable Quantity 0? Reservations, stock-source links and sales channels explained, with SQL to find the cause and the fix.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/salable-quantity-zero/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Stock and inventory</p>
+    <h1>Why is salable quantity 0 when the product has stock?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Salable quantity is the stock in the sources linked to the website's stock, minus open reservations, minus the out-of-stock threshold. When it's 0 while Quantity isn't, one of those three is the reason. Most often it's leftover reservations.</p>
+    <p>Since Magento 2.3, every placed order creates a <b>reservation</b>, a negative row in <code>inventory_reservation</code>. When the order ships or is canceled, a matching positive row cancels it out. If an order is deleted, edited by an import, or a process crashes halfway, the positive row never comes, and the stock stays “reserved” forever.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>1. Is the stock in a source that belongs to the website&#x27;s stock?</h3>
+    <p>Physical quantity only counts if its source is linked to the stock that sells on that website.</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT isi.source_code, isi.quantity, isi.status,
+       l.stock_id, sc.code AS website_code
+FROM inventory_source_item isi
+LEFT JOIN inventory_source_stock_link l ON l.source_code = isi.source_code
+LEFT JOIN inventory_stock_sales_channel sc ON sc.stock_id = l.stock_id AND sc.type = &#x27;website&#x27;
+WHERE isi.sku = @sku;</code></pre>
+    <p>If <code>stock_id</code> is empty, the source isn't linked to any stock (<b>Stores › Inventory › Stocks</b>). If <code>status</code> is 0, the source item is set to <i>Out of Stock</i>.</p>
+    <h3>2. How much is reserved?</h3>
+    <p>Reservations add up per SKU and stock. Open orders explain some; the rest are leftovers.</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT r.stock_id, SUM(r.quantity) AS reserved, COUNT(*) AS rows_count
+FROM inventory_reservation r
+WHERE r.sku = @sku
+GROUP BY r.stock_id;</code></pre>
+    <p>A total of -40 means 40 units are held. Compare it with the quantity on orders that aren't shipped, canceled or closed yet.</p>
+    <h3>3. Find every SKU with leftover reservations</h3>
+    <p>Large negative totals on products with no open orders are almost always stuck reservations.</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT r.sku, r.stock_id, SUM(r.quantity) AS reserved
+FROM inventory_reservation r
+GROUP BY r.sku, r.stock_id
+HAVING reserved &lt; 0
+ORDER BY reserved
+LIMIT 50;</code></pre>
+    <h3>4. What does the stock index say?</h3>
+    <p>The storefront reads the stock index, not the source items. Stock 1 (Default Stock) is a view; other stocks are tables named <code>inventory_stock_&lt;id&gt;</code>.</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT sku, quantity, is_salable
+FROM inventory_stock_1
+WHERE sku = @sku;</code></pre>
+    <h2>How to fix it</h2>
+    <ul><li>Let Magento compare reservations with open orders and add the missing compensations:<pre><code>bin/magento inventory:reservation:list-inconsistencies -r | bin/magento inventory:reservation:create-compensations</code></pre></li><li>Run <code>bin/magento inventory:reservation:list-inconsistencies</code> on its own first to see what it will fix.</li><li>If a source isn't linked, add it to the stock in <b>Stores › Inventory › Stocks</b>, then reindex: <code>bin/magento indexer:reindex inventory</code>.</li><li>Check <b>Stores › Configuration › Catalog › Inventory › Product Stock Options › Out-of-Stock Threshold</b>; a threshold of 5 makes 5 units unsellable.</li></ul>
+    <h2>Good to know</h2>
+    <ul><li>Never delete rows from <code>inventory_reservation</code> by hand on a live store: open orders need them, and you'll oversell.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Why is salable quantity 0 for SKU ABC-123 when it has stock?”</p>
+      <p>You get the answer in a sentence, with the numbers and the query it ran. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/configurable-product-out-of-stock/">Why does a configurable product show out of stock when its variants are in stock?</a></li><li><a href="/magento-troubleshooting/indexer-stuck-processing/">Why is a Magento indexer stuck on “Processing” or “Reindex required”?</a></li><li><a href="/magento-troubleshooting/cron-not-running/">How do I check if Magento cron is running?</a></li><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/product-not-in-category-page/">Why doesn&#x27;t a product show on its category page?</a></li><li><a href="/magento-troubleshooting/different-price-for-customer-group/">Why does a product show a different price for one customer group?</a></li><li><a href="/magento-database/inventory-source-item/">The <code>inventory_source_item</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

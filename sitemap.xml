@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://gauravextensions.com/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/docs.html</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/</loc><lastmod>2026-11-26</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/ai-magento-database-safety/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/chatgpt-magento-sql/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/magento-ai-reporting/</loc><lastmod>2026-11-21</lastmod></url>
@@ -11,9 +11,9 @@
   <url><loc>https://gauravextensions.com/guides/magento-out-of-stock-selling-products/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/magento-product-not-showing/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/guides/magento-products-without-images/</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/guides/questions-to-ask-your-magento-data/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/guides/questions-to-ask-your-magento-data/</loc><lastmod>2026-11-26</lastmod></url>
   <url><loc>https://gauravextensions.com/licence.html</loc><lastmod>2026-11-21</lastmod></url>
-  <url><loc>https://gauravextensions.com/magento-database/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-database/</loc><lastmod>2026-11-26</lastmod></url>
   <url><loc>https://gauravextensions.com/magento-database/catalog-category-product/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/magento-database/catalog-product-entity-decimal/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/magento-database/catalog-product-entity-int/</loc><lastmod>2026-11-21</lastmod></url>
@@ -37,4 +37,66 @@
   <url><loc>https://gauravextensions.com/privacy.html</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/releases/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://gauravextensions.com/user-guide/</loc><lastmod>2026-11-21</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/active-cart-price-rules/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/active-cms-pages-per-store-view/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/attribute-option-usage-color/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/average-order-value-by-customer-group/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/average-order-value-by-month/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/catalog-price-rules-for-customer-group/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/compare-month-year-over-year/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/configurable-products-without-stock/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/coupon-code-usage/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/coupon-codes-used-last-month/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/customer-groups-and-counts/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/customers-who-never-ordered/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/expired-special-prices/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/filterable-attributes/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/free-shipping-orders-last-month/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/guest-vs-registered-orders/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/in-stock-products-not-sold-90-days/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/low-stock-products/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/most-used-shipping-methods/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/new-customers-this-month-by-group/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/newsletter-subscriber-count/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/orders-by-country-last-quarter/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/orders-by-payment-method/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/orders-by-status-last-month/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/orders-pending-more-than-3-days/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/paid-orders-not-shipped/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-added-last-30-days/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-allowing-backorders/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-disabled-in-a-store-view/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-never-sold/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-not-in-any-category/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-per-attribute-set/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-with-price-zero/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-with-tier-prices/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/products-without-description/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/repeat-customers-by-city/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/repeat-customers-this-year/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/revenue-per-website-last-month/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/root-category-per-store/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/stock-per-source/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/top-customers-by-spend/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/total-discount-last-month/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-sql/websites-and-store-views/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/abandoned-carts/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/configurable-product-out-of-stock/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/cron-not-running/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/customer-account-locked/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/customers-cant-buy-product/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/different-price-for-customer-group/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/duplicate-url-key/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/empty-categories/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/entity-id-vs-row-id/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/indexer-stuck-processing/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/largest-database-tables/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/order-emails-not-sent/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/product-not-in-category-page/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/product-not-on-second-website/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/product-url-404-missing-url-rewrite/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/salable-quantity-zero/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://gauravextensions.com/magento-troubleshooting/store-view-attribute-overrides/</loc><lastmod>2026-11-26</lastmod></url>
 </urlset>

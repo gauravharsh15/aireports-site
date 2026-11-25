@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: different price for a customer group – find the cause (SQL)</title>
+  <meta name="description" content="Find out why a Magento 2 product shows a different price to wholesale or logged-in customers: tier prices, catalog price rules or the price index. SQL.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/different-price-for-customer-group/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: different price for a customer group – find the cause (SQL)">
+  <meta property="og:description" content="Find out why a Magento 2 product shows a different price to wholesale or logged-in customers: tier prices, catalog price rules or the price index. SQL.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/different-price-for-customer-group/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "Why does a product show a different price for one customer group?", "item": "https://gauravextensions.com/magento-troubleshooting/different-price-for-customer-group/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why does a product show a different price for one customer group?", "description": "Find out why a Magento 2 product shows a different price to wholesale or logged-in customers: tier prices, catalog price rules or the price index. SQL.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/different-price-for-customer-group/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Prices</p>
+    <h1>Why does a product show a different price for one customer group?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> The price a customer sees comes from the price index for their website and customer group. Three things change it per group: customer group and tier prices, catalog price rules, and special prices. Check the index first, then each source.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>1. The indexed price per website and group</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT ip.website_id, ip.customer_group_id, ip.price, ip.final_price, ip.min_price, ip.tier_price
+FROM catalog_product_index_price ip
+JOIN catalog_product_entity e ON e.entity_id = ip.entity_id
+WHERE e.sku = @sku
+ORDER BY ip.website_id, ip.customer_group_id;</code></pre>
+    <p><code>final_price</code> is what the group pays after rules and special prices. Group 0 is guests.</p>
+    <h3>2. Group and tier prices on the product</h3>
+<h4>Magento Open Source</h4>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT IF(t.all_groups = 1, &#x27;all groups&#x27;, t.customer_group_id) AS customer_group,
+       t.website_id, t.qty, t.value, t.percentage_value
+FROM catalog_product_entity_tier_price t
+JOIN catalog_product_entity e ON e.entity_id = t.entity_id
+WHERE e.sku = @sku
+ORDER BY t.qty;</code></pre>
+<h4>Adobe Commerce</h4>
+<p>Product, category, rule and CMS values are stored per version and joined on <code>row_id</code> (<a href="/magento-troubleshooting/entity-id-vs-row-id/">why</a>):</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT IF(t.all_groups = 1, &#x27;all groups&#x27;, t.customer_group_id) AS customer_group,
+       t.website_id, t.qty, t.value, t.percentage_value
+FROM catalog_product_entity_tier_price t
+JOIN catalog_product_entity e ON e.row_id = t.row_id
+WHERE e.sku = @sku
+  AND e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()
+ORDER BY t.qty;</code></pre>
+    <h3>3. Catalog price rules applied today</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT rp.website_id, rp.customer_group_id, rp.rule_date, rp.rule_price
+FROM catalogrule_product_price rp
+JOIN catalog_product_entity e ON e.entity_id = rp.product_id
+WHERE e.sku = @sku
+  AND rp.rule_date = CURRENT_DATE
+ORDER BY rp.website_id, rp.customer_group_id;</code></pre>
+    <p>Rows here mean a catalog price rule is lowering the price for that group today.</p>
+    <h2>How to fix it</h2>
+    <ul><li>If the index disagrees with the sources, reindex: <code>bin/magento indexer:reindex catalog_product_price catalogrule_rule catalogrule_product</code>.</li><li>Catalog price rules are applied per day by cron; a rule that should have ended still shows if cron stopped.</li><li>On B2B stores, a shared catalog can set its own prices per company group.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Why does SKU ABC-123 show a different price for wholesale customers?”</p>
+      <p>You get the answer in a sentence, with the numbers and the query it ran. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/salable-quantity-zero/">Why is salable quantity 0 when the product has stock?</a></li><li><a href="/magento-troubleshooting/indexer-stuck-processing/">Why is a Magento indexer stuck on “Processing” or “Reindex required”?</a></li><li><a href="/magento-troubleshooting/cron-not-running/">How do I check if Magento cron is running?</a></li><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/configurable-product-out-of-stock/">Why does a configurable product show out of stock when its variants are in stock?</a></li><li><a href="/magento-troubleshooting/product-not-in-category-page/">Why doesn&#x27;t a product show on its category page?</a></li><li><a href="/magento-database/catalog-product-entity/">The <code>catalog_product_entity</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

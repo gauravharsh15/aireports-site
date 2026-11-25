@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: find locked customer accounts and unlock them (SQL)</title>
+  <meta name="description" content="List Magento 2 customer accounts locked after failed logins, see when they unlock, and how to unlock them from the admin. SQL query.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/customer-account-locked/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: find locked customer accounts and unlock them (SQL)">
+  <meta property="og:description" content="List Magento 2 customer accounts locked after failed logins, see when they unlock, and how to unlock them from the admin. SQL query.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/customer-account-locked/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "How do I find and unlock locked Magento customer accounts?", "item": "https://gauravextensions.com/magento-troubleshooting/customer-account-locked/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How do I find and unlock locked Magento customer accounts?", "description": "List Magento 2 customer accounts locked after failed logins, see when they unlock, and how to unlock them from the admin. SQL query.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/customer-account-locked/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Customers</p>
+    <h1>How do I find and unlock locked Magento customer accounts?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> After too many failed logins, Magento locks the account until <code>lock_expires</code>. List those accounts with one query and unlock them from the customer page.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>Accounts locked right now</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT entity_id, email, website_id, failures_num, first_failure, lock_expires
+FROM customer_entity
+WHERE lock_expires &gt; NOW()
+ORDER BY lock_expires DESC;</code></pre>
+    <h3>Accounts with recent failed logins</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT entity_id, email, failures_num, first_failure
+FROM customer_entity
+WHERE failures_num &gt; 0
+ORDER BY failures_num DESC
+LIMIT 50;</code></pre>
+    <p>Many accounts with failures at the same time can mean a credential-stuffing attack, not forgetful customers.</p>
+    <h2>How to fix it</h2>
+    <ul><li>Unlock one account: open it in <b>Customers › All Customers</b> and click <b>Unlock</b>.</li><li>The limits are in <b>Stores › Configuration › Customers › Customer Configuration › Password Options</b>: <i>Maximum Login Failures to Lockout Account</i> and <i>Lockout Time (minutes)</i>.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which customer accounts are locked right now?”</p>
+      <p>You get the list as a table you can download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/abandoned-carts/">How do I find abandoned carts in Magento?</a></li><li><a href="/magento-troubleshooting/salable-quantity-zero/">Why is salable quantity 0 when the product has stock?</a></li><li><a href="/magento-troubleshooting/indexer-stuck-processing/">Why is a Magento indexer stuck on “Processing” or “Reindex required”?</a></li><li><a href="/magento-troubleshooting/cron-not-running/">How do I check if Magento cron is running?</a></li><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/configurable-product-out-of-stock/">Why does a configurable product show out of stock when its variants are in stock?</a></li><li><a href="/magento-database/customer-entity/">The <code>customer_entity</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

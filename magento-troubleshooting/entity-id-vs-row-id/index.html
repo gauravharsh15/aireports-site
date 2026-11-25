@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adobe Commerce row_id vs entity_id: how to join correctly</title>
+  <meta name="description" content="Why Adobe Commerce catalog tables use row_id instead of entity_id, which tables are affected, how to pick the current version, and the super_link trap.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/entity-id-vs-row-id/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Adobe Commerce row_id vs entity_id: how to join correctly">
+  <meta property="og:description" content="Why Adobe Commerce catalog tables use row_id instead of entity_id, which tables are affected, how to pick the current version, and the super_link trap.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/entity-id-vs-row-id/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "What is row_id in Adobe Commerce, and when do you join on it instead of entity_id?", "item": "https://gauravextensions.com/magento-troubleshooting/entity-id-vs-row-id/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "What is row_id in Adobe Commerce, and when do you join on it instead of entity_id?", "description": "Why Adobe Commerce catalog tables use row_id instead of entity_id, which tables are affected, how to pick the current version, and the super_link trap.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/entity-id-vs-row-id/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Database</p>
+    <h1>What is row_id in Adobe Commerce, and when do you join on it instead of entity_id?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Adobe Commerce (and Magento Commerce Cloud) keeps a version of a product, category, CMS page or rule for each scheduled update. <code>row_id</code> identifies one version; <code>entity_id</code> identifies the thing itself. Attribute values and some link tables join on <code>row_id</code>, and you must pick the current version.</p>
+    <p>On Magento Open Source, <code>row_id</code> doesn't exist and everything joins on <code>entity_id</code>. On Adobe Commerce, copying an Open Source query usually runs without errors but returns wrong or duplicate rows.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>1. Is this database Adobe Commerce?</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT COUNT(*) AS has_row_id
+FROM information_schema.columns
+WHERE table_schema = DATABASE()
+  AND table_name = &#x27;catalog_product_entity&#x27;
+  AND column_name = &#x27;row_id&#x27;;</code></pre>
+    <p>1 means Adobe Commerce: use the row_id joins below.</p>
+    <h3>2. Which tables join on row_id</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT table_name
+FROM information_schema.columns
+WHERE table_schema = DATABASE()
+  AND column_name = &#x27;row_id&#x27;
+ORDER BY table_name;</code></pre>
+    <p>Typical results: <code>catalog_product_entity_*</code> and <code>catalog_category_entity_*</code> value tables, tier prices, media gallery links, <code>catalogrule_customer_group</code>, <code>salesrule_website</code>, <code>cms_page_store</code>. Order, customer, stock, website and URL rewrite tables still use <code>entity_id</code>.</p>
+    <h3>3. The versions of one product</h3>
+<p><b>Adobe Commerce only:</b></p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT row_id, entity_id, created_in, updated_in,
+       FROM_UNIXTIME(created_in) AS valid_from,
+       IF(updated_in &gt;= 2147483647, &#x27;open&#x27;, FROM_UNIXTIME(updated_in)) AS valid_to
+FROM catalog_product_entity
+WHERE sku = @sku
+ORDER BY created_in;</code></pre>
+    <p>The current version is the row where <code>created_in &lt;= UNIX_TIMESTAMP() AND updated_in &gt; UNIX_TIMESTAMP()</code>. Always add that filter, or scheduled versions double your results.</p>
+    <h2>How to fix it</h2>
+    <ul><li>Join value tables like this on Adobe Commerce: <pre><code>JOIN catalog_product_entity_int st ON st.row_id = e.row_id ...
+WHERE e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()</code></pre></li><li>The trap: in <code>catalog_product_super_link</code>, <code>catalog_product_relation</code> and bundle tables, the <b>parent</b> column holds the parent's <code>row_id</code> while the <b>child</b> column holds the child's <code>entity_id</code>. On real stores the two numbers differ, so the wrong join quietly returns other products.</li><li><code>catalog_category_product.product_id</code>, <code>cataloginventory_stock_item.product_id</code>, <code>sales_order_item.product_id</code> and <code>url_rewrite.entity_id</code> are entity IDs on both editions.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which products are linked to configurable product ABC-123?”</p>
+      <p>You get the answer in a sentence, with the numbers and the query it ran. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/largest-database-tables/">Which Magento database tables are the biggest, and which can be cleaned?</a></li><li><a href="/magento-troubleshooting/salable-quantity-zero/">Why is salable quantity 0 when the product has stock?</a></li><li><a href="/magento-troubleshooting/indexer-stuck-processing/">Why is a Magento indexer stuck on “Processing” or “Reindex required”?</a></li><li><a href="/magento-troubleshooting/cron-not-running/">How do I check if Magento cron is running?</a></li><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/configurable-product-out-of-stock/">Why does a configurable product show out of stock when its variants are in stock?</a></li><li><a href="/magento-database/catalog-product-entity/">The <code>catalog_product_entity</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: in-stock products with no sales in 90 days (SQL)</title>
+  <meta name="description" content="Find slow-moving Magento 2 stock: products in stock with no sale in the last 90 days, biggest quantity first. SQL query.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-sql/in-stock-products-not-sold-90-days/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: in-stock products with no sales in 90 days (SQL)">
+  <meta property="og:description" content="Find slow-moving Magento 2 stock: products in stock with no sale in the last 90 days, biggest quantity first. SQL query.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-sql/in-stock-products-not-sold-90-days/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 SQL queries", "item": "https://gauravextensions.com/magento-sql/"}, {"@type": "ListItem", "position": 2, "name": "Which in-stock products haven't sold in 90 days?", "item": "https://gauravextensions.com/magento-sql/in-stock-products-not-sold-90-days/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Which in-stock products haven't sold in 90 days?", "description": "Find slow-moving Magento 2 stock: products in stock with no sale in the last 90 days, biggest quantity first. SQL query.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-sql/in-stock-products-not-sold-90-days/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-sql/">Magento 2 SQL queries</a> › Stock</p>
+    <h1>Which in-stock products haven&#x27;t sold in 90 days?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Join stock with recent order lines and keep the products that have stock but no sales.</p>
+    <h2>In the Magento admin</h2>
+    <ol class="checklist"><li>Export stock and the Products Ordered report for 90 days, and compare them in a spreadsheet.</li></ol>
+    <h2>With one query</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+<h4>Magento Open Source</h4>
+<pre><code>SELECT e.sku, si.qty
+FROM cataloginventory_stock_item si
+JOIN catalog_product_entity e ON e.entity_id = si.product_id
+WHERE si.is_in_stock = 1
+  AND si.qty &gt; 0
+  AND e.type_id IN (&#x27;simple&#x27;, &#x27;virtual&#x27;)
+  AND e.created_at &lt; NOW() - INTERVAL 90 DAY
+  AND NOT EXISTS (
+    SELECT 1 FROM sales_order_item i
+    JOIN sales_order o ON o.entity_id = i.order_id
+    WHERE i.product_id = e.entity_id
+      AND o.state &lt;&gt; &#x27;canceled&#x27;
+      AND o.created_at &gt;= NOW() - INTERVAL 90 DAY
+  )
+ORDER BY si.qty DESC;</code></pre>
+<h4>Adobe Commerce</h4>
+<p>Product, category, rule and CMS values are stored per version and joined on <code>row_id</code> (<a href="/magento-troubleshooting/entity-id-vs-row-id/">why</a>):</p>
+<pre><code>SELECT e.sku, si.qty
+FROM cataloginventory_stock_item si
+JOIN catalog_product_entity e ON e.entity_id = si.product_id
+WHERE si.is_in_stock = 1
+  AND si.qty &gt; 0
+  AND e.type_id IN (&#x27;simple&#x27;, &#x27;virtual&#x27;)
+  AND e.created_at &lt; NOW() - INTERVAL 90 DAY
+  AND NOT EXISTS (
+    SELECT 1 FROM sales_order_item i
+    JOIN sales_order o ON o.entity_id = i.order_id
+    WHERE i.product_id = e.entity_id
+      AND o.state &lt;&gt; &#x27;canceled&#x27;
+      AND o.created_at &gt;= NOW() - INTERVAL 90 DAY
+  )
+  AND e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()
+ORDER BY si.qty DESC;</code></pre>
+    <h2>Good to know</h2>
+    <ul><li>Products created in the last 90 days are skipped, because they haven't had a fair chance to sell.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which in-stock products haven&#x27;t sold in 90 days?”</p>
+      <p>You get the list as a table you can download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-sql/low-stock-products/">Which products have fewer than 5 units in stock?</a></li><li><a href="/magento-sql/stock-per-source/">What&#x27;s the total stock quantity in each source?</a></li><li><a href="/magento-sql/products-allowing-backorders/">Which products allow backorders?</a></li><li><a href="/magento-sql/products-never-sold/">Which products have never sold?</a></li><li><a href="/magento-database/cataloginventory-stock-item/">The <code>cataloginventory_stock_item</code> table explained</a></li><li><a href="/magento-database/catalog-product-entity/">The <code>catalog_product_entity</code> table explained</a></li><li><a href="/magento-database/sales-order-item/">The <code>sales_order_item</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

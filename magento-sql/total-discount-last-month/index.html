@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: total discount given last month (SQL)</title>
+  <meta name="description" content="Add up every discount on Magento 2 orders last month: coupons and automatic cart rules, in base currency. SQL query.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-sql/total-discount-last-month/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: total discount given last month (SQL)">
+  <meta property="og:description" content="Add up every discount on Magento 2 orders last month: coupons and automatic cart rules, in base currency. SQL query.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-sql/total-discount-last-month/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 SQL queries", "item": "https://gauravextensions.com/magento-sql/"}, {"@type": "ListItem", "position": 2, "name": "How much discount did we give in total last month?", "item": "https://gauravextensions.com/magento-sql/total-discount-last-month/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How much discount did we give in total last month?", "description": "Add up every discount on Magento 2 orders last month: coupons and automatic cart rules, in base currency. SQL query.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-sql/total-discount-last-month/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-sql/">Magento 2 SQL queries</a> › Prices and promotions</p>
+    <h1>How much discount did we give in total last month?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Each order stores its total discount. Sum it for last month, leaving out canceled orders.</p>
+    <h2>In the Magento admin</h2>
+    <ol class="checklist"><li>Refresh statistics and open <b>Reports › Sales › Orders</b>; the <b>Discount</b> column shows the total.</li></ol>
+    <h2>With one query</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT COUNT(*) AS orders_with_discount,
+       ROUND(-SUM(o.base_discount_amount), 2) AS total_discount
+FROM sales_order o
+WHERE o.base_discount_amount &lt; 0
+  AND o.state &lt;&gt; &#x27;canceled&#x27;
+  AND o.created_at &gt;= DATE_FORMAT(CURRENT_DATE - INTERVAL 1 MONTH, &#x27;%Y-%m-01&#x27;)
+  AND o.created_at &lt;  DATE_FORMAT(CURRENT_DATE, &#x27;%Y-%m-01&#x27;);</code></pre>
+    <h2>Good to know</h2>
+    <ul><li>Catalog price rules and special prices lower the product price itself, so they don't appear as a discount here.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“How much discount did we give in total last month?”</p>
+      <p>You get the answer in a sentence, with the numbers and the query it ran. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-sql/active-cart-price-rules/">Which cart price rules are active right now?</a></li><li><a href="/magento-sql/coupon-code-usage/">How many times has each coupon code been used?</a></li><li><a href="/magento-sql/catalog-price-rules-for-customer-group/">Which catalog price rules apply to the Wholesale customer group?</a></li><li><a href="/magento-sql/products-with-tier-prices/">Which products have tier prices?</a></li><li><a href="/magento-sql/free-shipping-orders-last-month/">How many orders had free shipping last month?</a></li><li><a href="/magento-database/sales-order/">The <code>sales_order</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

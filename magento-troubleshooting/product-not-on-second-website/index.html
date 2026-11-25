@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: product not showing on a second website – website assignment SQL</title>
+  <meta name="description" content="Magento 2 product shows on one website but not another? Find enabled products not assigned to a website, and check one SKU&#x27;s websites. SQL for both editions.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/product-not-on-second-website/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: product not showing on a second website – website assignment SQL">
+  <meta property="og:description" content="Magento 2 product shows on one website but not another? Find enabled products not assigned to a website, and check one SKU&#x27;s websites. SQL for both editions.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/product-not-on-second-website/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "Why is a product missing on one website but fine on another?", "item": "https://gauravextensions.com/magento-troubleshooting/product-not-on-second-website/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why is a product missing on one website but fine on another?", "description": "Magento 2 product shows on one website but not another? Find enabled products not assigned to a website, and check one SKU's websites. SQL for both editions.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/product-not-on-second-website/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Catalogue</p>
+    <h1>Why is a product missing on one website but fine on another?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> Products belong to websites through <code>catalog_product_website</code>. A product that isn't assigned to a website doesn't exist there, whatever its stock or status.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>1. The websites one product is on</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT w.website_id, w.code, w.name
+FROM catalog_product_entity e
+JOIN catalog_product_website pw ON pw.product_id = e.entity_id
+JOIN store_website w ON w.website_id = pw.website_id
+WHERE e.sku = @sku;</code></pre>
+    <h3>2. Enabled, visible products missing from a website</h3>
+<h4>Magento Open Source</h4>
+<pre><code>SET @website = &#x27;base&#x27;;  -- the website code
+SELECT e.sku
+FROM catalog_product_entity e
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_status     ON a_status.entity_type_id     = t.entity_type_id AND a_status.attribute_code     = &#x27;status&#x27;
+JOIN eav_attribute a_visibility ON a_visibility.entity_type_id = t.entity_type_id AND a_visibility.attribute_code = &#x27;visibility&#x27;
+JOIN catalog_product_entity_int st  ON st.entity_id  = e.entity_id AND st.attribute_id  = a_status.attribute_id     AND st.store_id  = 0 AND st.value = 1
+JOIN catalog_product_entity_int vis ON vis.entity_id = e.entity_id AND vis.attribute_id = a_visibility.attribute_id AND vis.store_id = 0 AND vis.value IN (2, 3, 4)
+WHERE NOT EXISTS (
+  SELECT 1 FROM catalog_product_website pw
+  JOIN store_website w ON w.website_id = pw.website_id
+  WHERE pw.product_id = e.entity_id AND w.code = @website
+)
+ORDER BY e.sku;</code></pre>
+<h4>Adobe Commerce</h4>
+<p>Product, category, rule and CMS values are stored per version and joined on <code>row_id</code> (<a href="/magento-troubleshooting/entity-id-vs-row-id/">why</a>):</p>
+<pre><code>SET @website = &#x27;base&#x27;;  -- the website code
+SELECT e.sku
+FROM catalog_product_entity e
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_status     ON a_status.entity_type_id     = t.entity_type_id AND a_status.attribute_code     = &#x27;status&#x27;
+JOIN eav_attribute a_visibility ON a_visibility.entity_type_id = t.entity_type_id AND a_visibility.attribute_code = &#x27;visibility&#x27;
+JOIN catalog_product_entity_int st  ON st.row_id  = e.row_id AND st.attribute_id  = a_status.attribute_id     AND st.store_id  = 0 AND st.value = 1
+JOIN catalog_product_entity_int vis ON vis.row_id = e.row_id AND vis.attribute_id = a_visibility.attribute_id AND vis.store_id = 0 AND vis.value IN (2, 3, 4)
+WHERE e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()
+  AND NOT EXISTS (
+  SELECT 1 FROM catalog_product_website pw
+  JOIN store_website w ON w.website_id = pw.website_id
+  WHERE pw.product_id = e.entity_id AND w.code = @website
+)
+ORDER BY e.sku;</code></pre>
+    <p>Website codes are in <b>Stores › All Stores</b> (or the <code>store_website</code> table).</p>
+    <h2>How to fix it</h2>
+    <ul><li>Assign the product in its <b>Product in Websites</b> section, or for many products use <b>Catalog › Products › Actions › Update attributes › Websites</b>.</li><li>With multi-source inventory, the website also needs a stock that includes a source with quantity for the product.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which enabled products are missing from the base website?”</p>
+      <p>You get the list as a table you can download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/product-not-in-category-page/">Why doesn&#x27;t a product show on its category page?</a></li><li><a href="/magento-troubleshooting/duplicate-url-key/">How do I fix “URL key for specified store already exists”?</a></li><li><a href="/magento-troubleshooting/store-view-attribute-overrides/">Which product attributes are overridden per store view?</a></li><li><a href="/magento-troubleshooting/empty-categories/">Which categories are enabled but have no products?</a></li><li><a href="/magento-troubleshooting/customers-cant-buy-product/">Why can&#x27;t customers buy a product on one website?</a></li><li><a href="/magento-database/catalog-product-entity/">The <code>catalog_product_entity</code> table explained</a></li><li><a href="/magento-database/eav-attribute/">The <code>eav_attribute</code> table explained</a></li><li><a href="/magento-database/catalog-product-entity-int/">The <code>catalog_product_entity_int</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

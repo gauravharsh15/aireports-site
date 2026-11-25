@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2 SQL queries for everyday store questions | AI Reports</title>
+  <meta name="description" content="Tested Magento 2 SQL queries and admin steps for everyday questions about orders, customers, products, stock and prices.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-sql/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2 SQL queries for everyday store questions | AI Reports">
+  <meta property="og:description" content="Tested Magento 2 SQL queries and admin steps for everyday questions about orders, customers, products, stock and prices.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-sql/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 SQL queries", "item": "https://gauravextensions.com/magento-sql/"}]}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <h1>Magento 2 SQL queries: everyday questions</h1>
+    <p class="lead-left">Answers to the questions Magento store teams ask every day: orders, customers, products, stock, prices and store setup. Each page shows where to look in the admin and a query for your developer, tested on Magento Open Source and Adobe Commerce 2.4.</p>
+    <h2>Orders and sales</h2>
+    <ul class="guide-list"><li><a href="/magento-sql/orders-by-status-last-month/"><b>How many orders did we receive last month, by status?</b></a></li><li><a href="/magento-sql/revenue-per-website-last-month/"><b>What was our revenue per website last month, excluding canceled orders?</b></a></li><li><a href="/magento-sql/average-order-value-by-month/"><b>What&#x27;s our average order value per month this year?</b></a></li><li><a href="/magento-sql/orders-by-payment-method/"><b>Which payment methods were used last month, and how many orders each?</b></a></li><li><a href="/magento-sql/most-used-shipping-methods/"><b>Which shipping methods do customers choose most?</b></a></li><li><a href="/magento-sql/orders-pending-more-than-3-days/"><b>Which orders are still pending after 3 days?</b></a></li><li><a href="/magento-sql/paid-orders-not-shipped/"><b>Which paid orders haven&#x27;t shipped after 3 days?</b></a></li><li><a href="/magento-sql/orders-by-country-last-quarter/"><b>Which countries did our orders come from last quarter?</b></a></li><li><a href="/magento-sql/coupon-codes-used-last-month/"><b>How many orders used a coupon code last month, and which codes?</b></a></li><li><a href="/magento-sql/compare-month-year-over-year/"><b>Compare orders this October with October last year, per website.</b></a></li><li><a href="/magento-sql/guest-vs-registered-orders/"><b>What share of orders came from guests and what share from registered customers?</b></a></li></ul>
+    <h2>Customers</h2>
+    <ul class="guide-list"><li><a href="/magento-sql/new-customers-this-month-by-group/"><b>How many customers registered this month, per customer group?</b></a></li><li><a href="/magento-sql/top-customers-by-spend/"><b>Who are our top 20 customers by total spend this year?</b></a></li><li><a href="/magento-sql/repeat-customers-this-year/"><b>How many customers placed more than one order this year?</b></a></li><li><a href="/magento-sql/customers-who-never-ordered/"><b>How many customer accounts have never placed an order?</b></a></li><li><a href="/magento-sql/average-order-value-by-customer-group/"><b>Which customer group has the highest average order value?</b></a></li><li><a href="/magento-sql/newsletter-subscriber-count/"><b>How many newsletter subscribers do we have?</b></a></li><li><a href="/magento-sql/repeat-customers-by-city/"><b>Which cities do our repeat customers come from?</b></a></li></ul>
+    <h2>Products and catalogue</h2>
+    <ul class="guide-list"><li><a href="/magento-sql/products-not-in-any-category/"><b>Which enabled products aren&#x27;t in any category?</b></a></li><li><a href="/magento-sql/products-with-price-zero/"><b>Which products have a price of 0?</b></a></li><li><a href="/magento-sql/products-disabled-in-a-store-view/"><b>Which products are enabled by default but disabled in a store view?</b></a></li><li><a href="/magento-sql/products-per-attribute-set/"><b>How many products are in each attribute set?</b></a></li><li><a href="/magento-sql/products-without-description/"><b>Which products have no description?</b></a></li><li><a href="/magento-sql/products-added-last-30-days/"><b>Which products were added in the last 30 days?</b></a></li><li><a href="/magento-sql/attribute-option-usage-color/"><b>What values does the color attribute have, and how many products use each?</b></a></li><li><a href="/magento-sql/configurable-products-without-stock/"><b>Which configurable products have no variant in stock?</b></a></li><li><a href="/magento-sql/expired-special-prices/"><b>Which products still have a special price whose end date has passed?</b></a></li></ul>
+    <h2>Stock</h2>
+    <ul class="guide-list"><li><a href="/magento-sql/low-stock-products/"><b>Which products have fewer than 5 units in stock?</b></a></li><li><a href="/magento-sql/stock-per-source/"><b>What&#x27;s the total stock quantity in each source?</b></a></li><li><a href="/magento-sql/products-allowing-backorders/"><b>Which products allow backorders?</b></a></li><li><a href="/magento-sql/products-never-sold/"><b>Which products have never sold?</b></a></li><li><a href="/magento-sql/in-stock-products-not-sold-90-days/"><b>Which in-stock products haven&#x27;t sold in 90 days?</b></a></li></ul>
+    <h2>Prices and promotions</h2>
+    <ul class="guide-list"><li><a href="/magento-sql/active-cart-price-rules/"><b>Which cart price rules are active right now?</b></a></li><li><a href="/magento-sql/coupon-code-usage/"><b>How many times has each coupon code been used?</b></a></li><li><a href="/magento-sql/catalog-price-rules-for-customer-group/"><b>Which catalog price rules apply to the Wholesale customer group?</b></a></li><li><a href="/magento-sql/total-discount-last-month/"><b>How much discount did we give in total last month?</b></a></li><li><a href="/magento-sql/products-with-tier-prices/"><b>Which products have tier prices?</b></a></li><li><a href="/magento-sql/free-shipping-orders-last-month/"><b>How many orders had free shipping last month?</b></a></li></ul>
+    <h2>Store setup</h2>
+    <ul class="guide-list"><li><a href="/magento-sql/websites-and-store-views/"><b>List all websites and store views with their codes.</b></a></li><li><a href="/magento-sql/customer-groups-and-counts/"><b>Which customer groups exist, and how many customers are in each?</b></a></li><li><a href="/magento-sql/root-category-per-store/"><b>Which root category does each store use?</b></a></li><li><a href="/magento-sql/active-cms-pages-per-store-view/"><b>How many active CMS pages does each store view have?</b></a></li><li><a href="/magento-sql/filterable-attributes/"><b>Which attributes are used as filters on category pages?</b></a></li></ul>
+    <h2>More</h2>
+    <ul class="guide-list"><li><a href="/magento-troubleshooting/"><b>Magento 2 troubleshooting: troubleshooting</b></a></li><li><a href="/magento-database/"><b>Magento 2 database reference: the tables you query most</b></a></li><li><a href="/guides/"><b>Guides for store owners</b></a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

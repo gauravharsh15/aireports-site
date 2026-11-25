@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: indexer stuck in processing or reindex required – fix</title>
+  <meta name="description" content="Find out why a Magento 2 indexer stays in Processing or Reindex required, how big the changelog backlog is, and how to reset it safely. SQL and commands.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/indexer-stuck-processing/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: indexer stuck in processing or reindex required – fix">
+  <meta property="og:description" content="Find out why a Magento 2 indexer stays in Processing or Reindex required, how big the changelog backlog is, and how to reset it safely. SQL and commands.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/indexer-stuck-processing/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "Why is a Magento indexer stuck on “Processing” or “Reindex required”?", "item": "https://gauravextensions.com/magento-troubleshooting/indexer-stuck-processing/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why is a Magento indexer stuck on “Processing” or “Reindex required”?", "description": "Find out why a Magento 2 indexer stays in Processing or Reindex required, how big the changelog backlog is, and how to reset it safely. SQL and commands.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/indexer-stuck-processing/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Indexing and cron</p>
+    <h1>Why is a Magento indexer stuck on “Processing” or “Reindex required”?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> An indexer that crashed mid-run stays marked <i>working</i>, and Magento won't start it again. In <i>Update by Schedule</i> mode, changes also pile up in changelog tables when cron stops. Check both, then reset and reindex.</p>
+    <p>Each indexer has a status in <code>indexer_state</code> (<i>valid</i>, <i>invalid</i>, <i>working</i>). In <i>Update by Schedule</i> mode, triggers write changed IDs into <code>*_cl</code> changelog tables, and cron processes them; <code>mview_state.version_id</code> is how far it got.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>1. Indexer status</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT indexer_id, status, updated
+FROM indexer_state
+ORDER BY status, indexer_id;</code></pre>
+    <p><i>working</i> with an old <code>updated</code> time means a run died. <i>invalid</i> means a full reindex is needed.</p>
+    <h3>2. Schedule mode and how far each view got</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT view_id, mode, status, version_id, updated
+FROM mview_state
+ORDER BY view_id;</code></pre>
+    <p>A view stuck in <i>working</i>, or one whose <code>updated</code> time stopped moving, isn't being processed.</p>
+    <h3>3. How many changes are waiting</h3>
+    <p>The backlog is the newest changelog version minus the processed one. For the busiest indexers:</p>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SELECT &#x27;catalog_product_price&#x27; AS view_id, (SELECT IFNULL(MAX(version_id), 0) FROM catalog_product_price_cl) - (SELECT version_id FROM mview_state WHERE view_id = &#x27;catalog_product_price&#x27;) AS backlog
+UNION ALL SELECT &#x27;catalogsearch_fulltext&#x27;, (SELECT IFNULL(MAX(version_id), 0) FROM catalogsearch_fulltext_cl) - (SELECT version_id FROM mview_state WHERE view_id = &#x27;catalogsearch_fulltext&#x27;)
+UNION ALL SELECT &#x27;catalog_category_product&#x27;, (SELECT IFNULL(MAX(version_id), 0) FROM catalog_category_product_cl) - (SELECT version_id FROM mview_state WHERE view_id = &#x27;catalog_category_product&#x27;)
+UNION ALL SELECT &#x27;catalog_product_category&#x27;, (SELECT IFNULL(MAX(version_id), 0) FROM catalog_product_category_cl) - (SELECT version_id FROM mview_state WHERE view_id = &#x27;catalog_product_category&#x27;)
+UNION ALL SELECT &#x27;inventory&#x27;, (SELECT IFNULL(MAX(version_id), 0) FROM inventory_cl) - (SELECT version_id FROM mview_state WHERE view_id = &#x27;inventory&#x27;)
+UNION ALL SELECT &#x27;catalogrule_product&#x27;, (SELECT IFNULL(MAX(version_id), 0) FROM catalogrule_product_cl) - (SELECT version_id FROM mview_state WHERE view_id = &#x27;catalogrule_product&#x27;);</code></pre>
+    <p>A few hundred is normal between cron runs. Tens of thousands that keep growing mean the indexer cron job isn't keeping up or isn't running.</p>
+    <h2>How to fix it</h2>
+    <ul><li>Check status from the command line: <code>bin/magento indexer:status</code>.</li><li>Reset a stuck indexer, then rebuild it: <pre><code>bin/magento indexer:reset catalog_product_price
+bin/magento indexer:reindex catalog_product_price</code></pre></li><li>If the backlog keeps growing, make sure cron runs (see <a href="/magento-troubleshooting/cron-not-running/">cron not running</a>); the <code>indexer_update_all_views</code> job processes the changelogs.</li><li>A full reindex on a big catalogue locks tables for a while; run it outside busy hours.</li></ul>
+    <h2>Good to know</h2>
+    <ul><li>Don't update <code>indexer_state</code> or <code>mview_state</code> by hand unless you know why the run died; fix the cause first, or the next run will die the same way.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which indexers are stuck or invalid, and how big is each changelog backlog?”</p>
+      <p>You get the answer in a sentence, with the numbers and the query it ran. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/cron-not-running/">How do I check if Magento cron is running?</a></li><li><a href="/magento-troubleshooting/salable-quantity-zero/">Why is salable quantity 0 when the product has stock?</a></li><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/configurable-product-out-of-stock/">Why does a configurable product show out of stock when its variants are in stock?</a></li><li><a href="/magento-troubleshooting/product-not-in-category-page/">Why doesn&#x27;t a product show on its category page?</a></li><li><a href="/magento-troubleshooting/different-price-for-customer-group/">Why does a product show a different price for one customer group?</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

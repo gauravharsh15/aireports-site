@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: find enabled categories with no products (SQL)</title>
+  <meta name="description" content="List Magento 2 categories that are enabled but show &#x27;We can&#x27;t find products matching the selection&#x27;, counting subcategories. Open Source and Adobe Commerce SQL.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/empty-categories/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: find enabled categories with no products (SQL)">
+  <meta property="og:description" content="List Magento 2 categories that are enabled but show &#x27;We can&#x27;t find products matching the selection&#x27;, counting subcategories. Open Source and Adobe Commerce SQL.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/empty-categories/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "Which categories are enabled but have no products?", "item": "https://gauravextensions.com/magento-troubleshooting/empty-categories/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Which categories are enabled but have no products?", "description": "List Magento 2 categories that are enabled but show 'We can't find products matching the selection', counting subcategories. Open Source and Adobe Commerce SQL.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/empty-categories/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Catalogue</p>
+    <h1>Which categories are enabled but have no products?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> A category with no products, directly or in any subcategory, shows “We can't find products matching the selection” to shoppers. The query finds enabled categories where nothing is assigned anywhere under them.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>Enabled categories with nothing assigned under them</h3>
+<h4>Magento Open Source</h4>
+<pre><code>SELECT c.entity_id, nm.value AS category, c.path
+FROM catalog_category_entity c
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_category&#x27;
+JOIN eav_attribute a_is_active ON a_is_active.entity_type_id = t.entity_type_id AND a_is_active.attribute_code = &#x27;is_active&#x27;
+JOIN eav_attribute a_name      ON a_name.entity_type_id      = t.entity_type_id AND a_name.attribute_code      = &#x27;name&#x27;
+JOIN catalog_category_entity_int act ON act.entity_id = c.entity_id AND act.attribute_id = a_is_active.attribute_id AND act.store_id = 0 AND act.value = 1
+LEFT JOIN catalog_category_entity_varchar nm ON nm.entity_id = c.entity_id AND nm.attribute_id = a_name.attribute_id AND nm.store_id = 0
+WHERE c.level &gt;= 2
+  AND NOT EXISTS (
+    SELECT 1 FROM catalog_category_product cp
+    JOIN catalog_category_entity cc ON cc.entity_id = cp.category_id
+    WHERE cc.entity_id = c.entity_id OR cc.path LIKE CONCAT(c.path, &#x27;/%&#x27;)
+  )
+ORDER BY c.path;</code></pre>
+<h4>Adobe Commerce</h4>
+<p>Product, category, rule and CMS values are stored per version and joined on <code>row_id</code> (<a href="/magento-troubleshooting/entity-id-vs-row-id/">why</a>):</p>
+<pre><code>SELECT c.entity_id, nm.value AS category, c.path
+FROM catalog_category_entity c
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_category&#x27;
+JOIN eav_attribute a_is_active ON a_is_active.entity_type_id = t.entity_type_id AND a_is_active.attribute_code = &#x27;is_active&#x27;
+JOIN eav_attribute a_name      ON a_name.entity_type_id      = t.entity_type_id AND a_name.attribute_code      = &#x27;name&#x27;
+JOIN catalog_category_entity_int act ON act.row_id = c.row_id AND act.attribute_id = a_is_active.attribute_id AND act.store_id = 0 AND act.value = 1
+LEFT JOIN catalog_category_entity_varchar nm ON nm.row_id = c.row_id AND nm.attribute_id = a_name.attribute_id AND nm.store_id = 0
+WHERE c.level &gt;= 2
+  AND c.created_in &lt;= UNIX_TIMESTAMP() AND c.updated_in &gt; UNIX_TIMESTAMP()
+  AND NOT EXISTS (
+    SELECT 1 FROM catalog_category_product cp
+    JOIN catalog_category_entity cc ON cc.entity_id = cp.category_id
+    WHERE cc.entity_id = c.entity_id OR cc.path LIKE CONCAT(c.path, &#x27;/%&#x27;)
+  )
+ORDER BY c.path;</code></pre>
+    <p>Level 0 and 1 are the tree root and the store roots, so they're skipped. A category can also look empty when its products are disabled, invisible or out of stock; those are shown in the category's product list in the admin but not on the storefront. Categories with <b>Display Mode</b> set to <i>Static block only</i> are content pages and are meant to have no products.</p>
+    <h2>How to fix it</h2>
+    <ul><li>Assign products, disable the category (<b>Enable Category</b> = No), or remove it from the menu (<b>Include in Menu</b> = No).</li><li>If products are assigned but the page is still empty, see <a href="/magento-troubleshooting/product-not-in-category-page/">product not showing on its category page</a>.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Which categories are enabled but have no products?”</p>
+      <p>You get the list as a table you can download as CSV. It runs read-only on your own store, in Table + CSV mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/product-not-in-category-page/">Why doesn&#x27;t a product show on its category page?</a></li><li><a href="/magento-troubleshooting/duplicate-url-key/">How do I fix “URL key for specified store already exists”?</a></li><li><a href="/magento-troubleshooting/store-view-attribute-overrides/">Which product attributes are overridden per store view?</a></li><li><a href="/magento-troubleshooting/product-not-on-second-website/">Why is a product missing on one website but fine on another?</a></li><li><a href="/magento-troubleshooting/customers-cant-buy-product/">Why can&#x27;t customers buy a product on one website?</a></li><li><a href="/magento-database/eav-attribute/">The <code>eav_attribute</code> table explained</a></li><li><a href="/magento-database/catalog-category-product/">The <code>catalog_category_product</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

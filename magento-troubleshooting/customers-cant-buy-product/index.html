@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magento 2: customers can&#x27;t add a product to the cart – checklist with SQL</title>
+  <meta name="description" content="Why a Magento 2 product can&#x27;t be bought on a website: status per store view, website assignment, salable quantity, quantity limits and B2B permissions. SQL checks.">
+  <link rel="canonical" href="https://gauravextensions.com/magento-troubleshooting/customers-cant-buy-product/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Magento 2: customers can&#x27;t add a product to the cart – checklist with SQL">
+  <meta property="og:description" content="Why a Magento 2 product can&#x27;t be bought on a website: status per store view, website assignment, salable quantity, quantity limits and B2B permissions. SQL checks.">
+  <meta property="og:url" content="https://gauravextensions.com/magento-troubleshooting/customers-cant-buy-product/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@500;600&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:image" content="https://gauravextensions.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magento 2 troubleshooting", "item": "https://gauravextensions.com/magento-troubleshooting/"}, {"@type": "ListItem", "position": 2, "name": "Why can't customers buy a product on one website?", "item": "https://gauravextensions.com/magento-troubleshooting/customers-cant-buy-product/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why can't customers buy a product on one website?", "description": "Why a Magento 2 product can't be bought on a website: status per store view, website assignment, salable quantity, quantity limits and B2B permissions. SQL checks.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "author": {"@type": "Person", "name": "Gaurav Harsh", "url": "https://www.linkedin.com/in/gaurav-harsh-2285b7118/"}, "publisher": {"@type": "Organization", "name": "Gaurav Extensions", "url": "https://gauravextensions.com/"}, "mainEntityOfPage": "https://gauravextensions.com/magento-troubleshooting/customers-cant-buy-product/"}</script>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><img class="brand-logo" src="/logo-mark.svg" alt="" width="28" height="28">AI Reports</a>
+    <nav class="nav">
+      <a href="/#how">How it works</a>
+      <a href="/#security">Security</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a class="btn btn-primary nav-cta" href="/#pricing">Get a licence</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="prose guide">
+    <p class="crumbs"><a href="/magento-troubleshooting/">Magento 2 troubleshooting</a> › Catalogue</p>
+    <h1>Why can&#x27;t customers buy a product on one website?</h1>
+    <p class="byline">By <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/" rel="author">Gaurav Harsh</a>, Magento developer · 26 November 2026 · Magento Open Source and Adobe Commerce 2.4</p>
+    <p class="answer"><b>Short answer:</b> To be buyable on a website, a product must be enabled in that store view, assigned to the website, salable in the website's stock, and allowed for the customer's group. Check them in that order.</p>
+    <h2>Check it step by step</h2>
+    <p class="callout">These queries only read data. Run them on a copy of your database if you can, or ask your developer to. If your tables have a prefix (set in <code>app/etc/env.php</code>), add it to each table name.</p>
+    <h3>1. Website assignment and status per store view</h3>
+<h4>Magento Open Source</h4>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT s.code AS store_view, w.code AS website,
+       (pw.product_id IS NOT NULL) AS on_website,
+       COALESCE(sv.value, d.value) AS status
+FROM catalog_product_entity e
+JOIN store s ON s.store_id &gt; 0
+JOIN store_website w ON w.website_id = s.website_id
+LEFT JOIN catalog_product_website pw ON pw.product_id = e.entity_id AND pw.website_id = s.website_id
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_status ON a_status.entity_type_id = t.entity_type_id AND a_status.attribute_code = &#x27;status&#x27;
+LEFT JOIN catalog_product_entity_int d  ON d.entity_id  = e.entity_id AND d.attribute_id  = a_status.attribute_id AND d.store_id  = 0
+LEFT JOIN catalog_product_entity_int sv ON sv.entity_id = e.entity_id AND sv.attribute_id = a_status.attribute_id AND sv.store_id = s.store_id
+WHERE e.sku = @sku
+ORDER BY w.code, s.code;</code></pre>
+<h4>Adobe Commerce</h4>
+<p>Product, category, rule and CMS values are stored per version and joined on <code>row_id</code> (<a href="/magento-troubleshooting/entity-id-vs-row-id/">why</a>):</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT s.code AS store_view, w.code AS website,
+       (pw.product_id IS NOT NULL) AS on_website,
+       COALESCE(sv.value, d.value) AS status
+FROM catalog_product_entity e
+JOIN store s ON s.store_id &gt; 0
+JOIN store_website w ON w.website_id = s.website_id
+LEFT JOIN catalog_product_website pw ON pw.product_id = e.entity_id AND pw.website_id = s.website_id
+JOIN eav_entity_type t ON t.entity_type_code = &#x27;catalog_product&#x27;
+JOIN eav_attribute a_status ON a_status.entity_type_id = t.entity_type_id AND a_status.attribute_code = &#x27;status&#x27;
+LEFT JOIN catalog_product_entity_int d  ON d.row_id  = e.row_id AND d.attribute_id  = a_status.attribute_id AND d.store_id  = 0
+LEFT JOIN catalog_product_entity_int sv ON sv.row_id = e.row_id AND sv.attribute_id = a_status.attribute_id AND sv.store_id = s.store_id
+WHERE e.sku = @sku
+  AND e.created_in &lt;= UNIX_TIMESTAMP() AND e.updated_in &gt; UNIX_TIMESTAMP()
+ORDER BY w.code, s.code;</code></pre>
+    <p>Status 1 is enabled, 2 disabled.</p>
+    <h3>2. Which stock sells on each website, and is the product salable there</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT sc.code AS website, sc.stock_id,
+       (SELECT SUM(r.quantity) FROM inventory_reservation r WHERE r.sku = @sku AND r.stock_id = sc.stock_id) AS reserved
+FROM inventory_stock_sales_channel sc
+WHERE sc.type = &#x27;website&#x27;;</code></pre>
+    <p>Then read <code>is_salable</code> from that stock's index (<code>inventory_stock_1</code> for the Default Stock, <code>inventory_stock_&lt;id&gt;</code> for others). If it's 0, see <a href="/magento-troubleshooting/salable-quantity-zero/">salable quantity is 0</a>.</p>
+    <h3>3. Quantity limits on the product</h3>
+<p>Works on Magento Open Source and Adobe Commerce:</p>
+<pre><code>SET @sku = &#x27;ABC-123&#x27;;  -- your SKU
+SELECT si.min_sale_qty, si.use_config_min_sale_qty, si.max_sale_qty, si.use_config_max_sale_qty,
+       si.enable_qty_increments, si.qty_increments
+FROM catalog_product_entity e
+JOIN cataloginventory_stock_item si ON si.product_id = e.entity_id
+WHERE e.sku = @sku;</code></pre>
+    <p>A minimum quantity of 10 or a quantity increment of 6 makes “add 1 to cart” fail with a message customers often ignore.</p>
+    <h2>How to fix it</h2>
+    <ul><li>Assign the website, enable the product in the store view, or fix stock, then reindex.</li><li>Required custom options without a default stop add-to-cart from category pages; the customer has to open the product page.</li><li>On Adobe Commerce with category permissions, or B2B with shared catalogs, the customer's group may not be allowed to see prices or add to cart.</li></ul>
+
+    <aside class="shortcut">
+      <p class="shortcut-kicker">The quick way</p>
+      <p>Ask <a href="/">AI Reports</a> in plain English, from the Magento admin:</p>
+      <p class="shortcut-q">“Why can&#x27;t customers buy SKU ABC-123 on the UK website?”</p>
+      <p>You get the answer in a sentence, with the numbers and the query it ran. It runs read-only on your own store, in Answer mode, in under a minute. No SQL needed.</p>
+      <p><a class="btn btn-primary" href="/">See how AI Reports works</a></p>
+    </aside>
+    <h2>Related</h2>
+    <ul class="related"><li><a href="/magento-troubleshooting/product-url-404-missing-url-rewrite/">Why does a Magento product URL return 404?</a></li><li><a href="/magento-troubleshooting/product-not-in-category-page/">Why doesn&#x27;t a product show on its category page?</a></li><li><a href="/magento-troubleshooting/duplicate-url-key/">How do I fix “URL key for specified store already exists”?</a></li><li><a href="/magento-troubleshooting/store-view-attribute-overrides/">Which product attributes are overridden per store view?</a></li><li><a href="/magento-troubleshooting/empty-categories/">Which categories are enabled but have no products?</a></li><li><a href="/magento-troubleshooting/product-not-on-second-website/">Why is a product missing on one website but fine on another?</a></li><li><a href="/magento-database/catalog-product-entity/">The <code>catalog_product_entity</code> table explained</a></li><li><a href="/magento-database/eav-attribute/">The <code>eav_attribute</code> table explained</a></li><li><a href="/magento-database/catalog-product-entity-int/">The <code>catalog_product_entity_int</code> table explained</a></li></ul>
+
+    <div class="author">
+      <img src="/images/gaurav.jpg" alt="Gaurav Harsh" width="56" height="56" loading="lazy">
+      <p><b>Gaurav Harsh</b> is a Magento developer who works on large Adobe Commerce stores and builds <a href="/">AI Reports</a>, a Magento extension for asking your store's data questions in plain English. <a href="https://www.linkedin.com/in/gaurav-harsh-2285b7118/">LinkedIn</a></p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© <span id="year">2026</span> Gaurav Extensions</span>
+    <nav>
+      <a href="/guides/">Guides</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/releases/">Releases</a>
+      <a href="/user-guide/">User guide</a>
+      <a href="/licence.html">Licence</a>
+      <a href="/privacy.html">Privacy</a>
+      <a data-contact href="#">Contact</a>
+    </nav>
+    <div class="tm">Magento and Adobe Commerce are trademarks of Adobe Inc. AI Reports is not affiliated with or endorsed by Adobe.</div>
+  </div>
+</footer>
+<script src="/site.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b4a12f6e374f441fac19fbee0a9a2779"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
